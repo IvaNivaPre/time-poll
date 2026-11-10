@@ -1,5 +1,5 @@
 /**
- * Сервис синхронизации с Firebase (Firestore и Realtime Database) + резервное локальное хранилище.
+ * Сервис синхронизации с Firebase (Realtime Database и Cloud Firestore) + резервное локальное хранилище.
  */
 (function () {
   const FB_CONFIG_KEY = 'timepoll_firebase_config';
@@ -9,7 +9,7 @@
       this.config = null;
       this.app = null;
       this.db = null;
-      this.mode = 'local'; // 'local' | 'firestore' | 'rtdb'
+      this.mode = 'local'; // 'local' | 'rtdb' | 'firestore'
       this.status = 'local'; // 'local' | 'connecting' | 'connected' | 'error'
       this.lastError = null;
       this.unsubscribe = null;
@@ -33,7 +33,6 @@
           const parsed = JSON.parse(jsonStr);
           if (parsed && (parsed.projectId || parsed.databaseURL)) {
             localStorage.setItem(FB_CONFIG_KEY, JSON.stringify(parsed));
-            // Очищаем параметр из адресной строки для аккуратности
             params.delete('fb_config');
             const newQuery = params.toString();
             const cleanUrl =
@@ -52,20 +51,27 @@
       try {
         const raw = localStorage.getItem(FB_CONFIG_KEY);
         if (raw) {
-          this.config = JSON.parse(raw);
-          return;
+          const parsed = JSON.parse(raw);
+          if (parsed && (parsed.projectId || parsed.databaseURL)) {
+            if (!parsed.mode || parsed.mode === 'auto') {
+              parsed.mode = parsed.databaseURL ? 'rtdb' : 'firestore';
+            }
+            this.config = parsed;
+            return;
+          }
         }
       } catch (e) {
         console.warn('Ошибка чтения сохраненного конфига Firebase:', e);
       }
 
       if (window.DEFAULT_FIREBASE_CONFIG && typeof window.DEFAULT_FIREBASE_CONFIG === 'object') {
-        this.config = window.DEFAULT_FIREBASE_CONFIG;
+        this.config = { ...window.DEFAULT_FIREBASE_CONFIG };
       }
     }
 
     /**
-     * Умный парсер текста конфига из консоли Firebase (поддерживает и JSON, и JS-объект)
+     * Надёжный парсер текста конфига из консоли Firebase
+     * Корректно обрабатывает и JSON, и JS-объект с https:// и двоеточиями в appId
      */
     parseConfigInput(rawText, preferredMode = 'auto') {
       if (!rawText || !rawText.trim()) {
@@ -73,7 +79,6 @@
       }
       let text = rawText.trim();
 
-      // Если вставили кусок кода вида const firebaseConfig = { ... };
       const braceStart = text.indexOf('{');
       const braceEnd = text.lastIndexOf('}');
       if (braceStart !== -1 && braceEnd !== -1 && braceEnd > braceStart) {
@@ -84,24 +89,22 @@
       try {
         parsed = JSON.parse(text);
       } catch (_) {
-        // Конвертируем ключи без кавычек и одинарные кавычки в валидный JSON
-        const normalized = text
-          .replace(/\/\/.*$/gm, '')
-          .replace(/\/\*[\s\S]*?\*\//g, '')
-          .replace(/(['"])?([a-zA-Z0-9_]+)(['"])?\s*:/g, '"$2":')
-          .replace(/'([^']*)'/g, '"$1"')
-          .replace(/,\s*([}\]])/g, '$1');
-        try {
-          parsed = JSON.parse(normalized);
-        } catch (err2) {
-          throw new Error(
-            'Не удалось распознать формат конфигурации. Вставьте JSON или объект firebaseConfig из консоли Firebase.'
-          );
+        // Извлекаем пары ключ: "значение" или ключ: 'значение' без повреждения URL (https://) и appId (1:...:web:...)
+        parsed = {};
+        const pairRegex =
+          /['"]?([a-zA-Z0-9_]+)['"]?\s*:\s*(?:"([^"\\]*(?:\\.[^"\\]*)*)"|'([^'\\]*(?:\\.[^'\\]*)*)')/g;
+        let match;
+        while ((match = pairRegex.exec(text)) !== null) {
+          const key = match[1];
+          const val = match[2] !== undefined ? match[2] : match[3];
+          parsed[key] = val;
         }
       }
 
-      if (!parsed || typeof parsed !== 'object') {
-        throw new Error('Некорректный объект конфигурации.');
+      if (!parsed || typeof parsed !== 'object' || Object.keys(parsed).length === 0) {
+        throw new Error(
+          'Не удалось распознать формат конфигурации. Вставьте JSON или объект firebaseConfig из консоли Firebase.'
+        );
       }
 
       if (!parsed.projectId && !parsed.databaseURL) {
@@ -110,8 +113,9 @@
 
       if (preferredMode && preferredMode !== 'auto') {
         parsed.mode = preferredMode;
-      } else if (!parsed.mode) {
-        parsed.mode = parsed.databaseURL && !parsed.projectId ? 'rtdb' : 'firestore';
+      } else {
+        // Если есть databaseURL — по умолчанию используем Realtime Database
+        parsed.mode = parsed.databaseURL ? 'rtdb' : 'firestore';
       }
 
       return parsed;
@@ -149,7 +153,6 @@
       try {
         this.setStatus('connecting');
 
-        // Переиспользуем или создаем приложение Firebase
         if (!window.firebase.apps.length) {
           this.app = window.firebase.initializeApp(this.config);
         } else {
@@ -161,7 +164,9 @@
         }
 
         const targetMode =
-          this.config.mode === 'rtdb' || (!this.config.projectId && this.config.databaseURL)
+          this.config.mode === 'firestore'
+            ? 'firestore'
+            : this.config.databaseURL
             ? 'rtdb'
             : 'firestore';
 
@@ -183,7 +188,6 @@
                   this.isApplyingRemote = false;
                 }
               } else if (!val && this.onRemoteDataCallback) {
-                // Если в БД еще пусто, выгружаем начальное состояние
                 this.onRemoteDataCallback(null, true);
               }
             },
@@ -219,7 +223,6 @@
                   }
                 }
               } else if (this.onRemoteDataCallback) {
-                // Документ еще не создан в Firestore — инициализируем его текущими данными
                 this.onRemoteDataCallback(null, true);
               }
             },
@@ -318,4 +321,3 @@ window.DEFAULT_FIREBASE_CONFIG = ${cfgString};
 
   window.firebaseService = new FirebaseService();
 })();
-

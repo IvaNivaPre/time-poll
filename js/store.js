@@ -73,11 +73,11 @@
           {
             id: 'ev_demo_1',
             title: 'Встреча команды / Мероприятие',
-            description: 'Отметьте правой кнопкой мыши (ПКМ) удобные дни в календаре или кликните ЛКМ на конкретный день, чтобы раскрасить интервалы по 30 минут.',
+            description: 'Отметьте правой кнопкой мыши (ПКМ) удобные дни в календаре или кликните ЛКМ на конкретный день, чтобы отметить удобное время.',
             startDate: formatDateISO(start),
             endDate: formatDateISO(end),
-            expectedStartTime: '10:00',
-            expectedEndTime: '21:00',
+            expectedStartTime: '',
+            expectedEndTime: '',
             participantIds: ['u_admin_ivaniva'],
             createdBy: 'u_admin_ivaniva',
             createdAt: Date.now(),
@@ -403,10 +403,10 @@
     createEvent({
       title,
       description,
-      startDate,
-      endDate,
-      expectedStartTime = '09:00',
-      expectedEndTime = '22:00',
+      startDate = '',
+      endDate = '',
+      expectedStartTime = '',
+      expectedEndTime = '',
       participantIds = []
     }) {
       if (!this.isAdmin()) {
@@ -416,10 +416,7 @@
       if (!cleanTitle) {
         throw new Error('Введите название мероприятия');
       }
-      if (!startDate || !endDate) {
-        throw new Error('Укажите предполагаемый промежуток дат');
-      }
-      if (startDate > endDate) {
+      if (startDate && endDate && startDate > endDate) {
         throw new Error('Дата начала не может быть позже даты окончания');
       }
 
@@ -427,10 +424,10 @@
         id: 'ev_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
         title: cleanTitle,
         description: (description || '').trim(),
-        startDate,
-        endDate,
-        expectedStartTime: expectedStartTime || '00:00',
-        expectedEndTime: expectedEndTime || '24:00',
+        startDate: startDate || '',
+        endDate: endDate || '',
+        expectedStartTime: expectedStartTime || '',
+        expectedEndTime: expectedEndTime || '',
         participantIds: Array.from(new Set(participantIds)),
         createdBy: this.currentUserId,
         createdAt: Date.now(),
@@ -457,19 +454,16 @@
       if (!cleanTitle) {
         throw new Error('Введите название мероприятия');
       }
-      if (!startDate || !endDate) {
-        throw new Error('Укажите предполагаемый промежуток дат');
-      }
-      if (startDate > endDate) {
+      if (startDate && endDate && startDate > endDate) {
         throw new Error('Дата начала не может быть позже даты окончания');
       }
 
       ev.title = cleanTitle;
       ev.description = (description || '').trim();
-      ev.startDate = startDate;
-      ev.endDate = endDate;
-      if (expectedStartTime) ev.expectedStartTime = expectedStartTime;
-      if (expectedEndTime) ev.expectedEndTime = expectedEndTime;
+      ev.startDate = startDate || '';
+      ev.endDate = endDate || '';
+      ev.expectedStartTime = expectedStartTime || '';
+      ev.expectedEndTime = expectedEndTime || '';
       if (Array.isArray(participantIds)) {
         ev.participantIds = Array.from(new Set(participantIds));
       }

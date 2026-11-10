@@ -37,31 +37,31 @@
       id: 'dark',
       name: 'Тёмная (Графит)',
       desc: 'Классическая контрастная тёмная тема',
-      colors: ['#0f1117', '#171b26', '#6366f1', '#10b981']
+      colors: ['#0e1621', '#17212b', '#6366f1', '#10b981']
     },
     {
       id: 'light',
       name: 'Светлая (Дневная)',
-      desc: 'Чистая светлая тема с серым фоном вне промежутка',
-      colors: ['#f1f5f9', '#ffffff', '#4f46e5', '#10b981']
+      desc: 'Светлая тема с классическим фоном чата Telegram',
+      colors: ['#d4e6c3', '#ffffff', '#4f46e5', '#10b981']
     },
     {
       id: 'midnight',
       name: 'Полночь (Неон)',
-      desc: 'Глубокий индиго с фиолетовыми акцентами',
-      colors: ['#070514', '#110e26', '#a855f7', '#3b82f6']
+      desc: 'Глубокий индиго с фиолетовым узором',
+      colors: ['#090618', '#110e26', '#a855f7', '#3b82f6']
     },
     {
       id: 'forest',
       name: 'Изумрудный лес',
       desc: 'Природные тёмно-зелёные оттенки',
-      colors: ['#0b1612', '#12221c', '#10b981', '#34d399']
+      colors: ['#0a1813', '#12221c', '#10b981', '#34d399']
     },
     {
       id: 'ocean',
       name: 'Океанский бриз',
       desc: 'Глубокие морские синие тона',
-      colors: ['#091521', '#0f2133', '#0ea5e9', '#38bdf8']
+      colors: ['#081523', '#0f2133', '#0ea5e9', '#38bdf8']
     },
     {
       id: 'sunset',
@@ -108,7 +108,7 @@
       this.viewYear = new Date().getFullYear();
       this.viewMonth = new Date().getMonth();
       this.calendarMode = 'personal'; // 'personal' | 'group'
-      this.inspectedUserId = null; // Позволяет смотреть/красить конкретного пользователя
+      this.inspectedUserId = null;
 
       // Состояние зажатой ПКМ для рисования протягиванием
       this.paintDrag = {
@@ -123,20 +123,15 @@
     }
 
     init() {
-      // Применяем сохраненную тему
       document.documentElement.setAttribute('data-theme', store.getTheme());
-
-      // Выбираем первое доступное мероприятие
       this._ensureSelectedEvent();
 
-      // Глобальное завершение протягивания ПКМ
       window.addEventListener('mouseup', (e) => {
         if (this.paintDrag.active && (e.button === 2 || e.buttons === 0)) {
           this.finishPaintDrag();
         }
       });
 
-      // Горячие клавиши выбора цвета (1 - Зеленый, 2 - Синий, 3 - Красный, 0 - Ластик)
       window.addEventListener('keydown', (e) => {
         if (['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName)) {
           return;
@@ -151,7 +146,6 @@
         }
       });
 
-      // Подписка на обновления Store
       store.subscribe(() => {
         this._ensureSelectedEvent();
         if (!this.paintDrag.active) {
@@ -159,7 +153,6 @@
         }
       });
 
-      // Инициализируем подключение к Firebase (если оно настроено)
       fbService.init(
         (remoteData, isEmptyRemote) => {
           store.applyRemoteState(remoteData, isEmptyRemote);
@@ -197,7 +190,6 @@
     setActiveColor(color) {
       if (!COLOR_META[color]) return;
       this.activeColor = color;
-      // Обновляем кнопки палитры без полной перерисовки страницы
       document.querySelectorAll('.color-brush-btn').forEach((btn) => {
         btn.classList.toggle('active', btn.getAttribute('data-color') === color);
       });
@@ -323,7 +315,7 @@
         <div class="auth-wrapper">
           <div class="auth-card">
             <div class="auth-logo">
-              <div class="auth-logo-icon">📅</div>
+              <div class="auth-logo-icon">🕒</div>
               <div>
                 <h1 class="auth-title">TimePoll</h1>
               </div>
@@ -379,7 +371,7 @@
       return `
         <header class="app-header">
           <div class="brand-area">
-            <div class="brand-icon">📅</div>
+            <div class="brand-icon">🕒</div>
             <span class="brand-name">TimePoll</span>
             <div id="db-status-badge" class="db-status-badge">
               <span class="db-status-dot"></span>
@@ -470,7 +462,7 @@
           </div>
 
           <div class="palette-hint">
-            <span>🖱️ Нажмите <kbd>ПКМ</kbd> (правую кнопку мыши) или зажмите <kbd>ПКМ</kbd> для покраски. <kbd>ЛКМ</kbd> по дню — выбор времени (шаг 30 мин).</span>
+            <span>🖱️ Нажмите <kbd>ПКМ</kbd> (правую кнопку мыши) или зажмите <kbd>ПКМ</kbd> для покраски. <kbd>ЛКМ</kbd> по дню — выбор времени.</span>
           </div>
         </section>
       `;
@@ -530,16 +522,25 @@
                       .map((ev) => {
                         const isActive = ev.id === this.selectedEventId;
                         const partCount = (ev.participantIds || []).length;
+                        const hasExpectedTime = Boolean(ev.expectedStartTime && ev.expectedEndTime);
                         return `
                           <div class="event-card-item ${isActive ? 'active' : ''}" data-event-id="${escapeHtml(ev.id)}">
                             <div class="event-card-title">${escapeHtml(ev.title)}</div>
-                            <div class="event-card-dates">
-                              <span>📆</span>
-                              <span>${escapeHtml(formatReadableDate(ev.startDate))} — ${escapeHtml(formatReadableDate(ev.endDate))}</span>
-                            </div>
+                            ${
+                              ev.startDate && ev.endDate
+                                ? `<div class="event-card-dates">
+                                    <span>📆</span>
+                                    <span>${escapeHtml(formatReadableDate(ev.startDate))} — ${escapeHtml(formatReadableDate(ev.endDate))}</span>
+                                  </div>`
+                                : ''
+                            }
                             <div class="event-card-meta">
                               <span>👥 Участников: ${partCount}</span>
-                              <span>⏰ ${escapeHtml(ev.expectedStartTime || '00:00')}–${escapeHtml(ev.expectedEndTime || '24:00')}</span>
+                              ${
+                                hasExpectedTime
+                                  ? `<span>⏰ ${escapeHtml(ev.expectedStartTime)}–${escapeHtml(ev.expectedEndTime)}</span>`
+                                  : ''
+                              }
                             </div>
                           </div>
                         `;
@@ -575,6 +576,7 @@
           ? this.inspectedUserId
           : currentUser.id;
       const targetUser = store.getUserById(targetUserId) || currentUser;
+      const hasExpectedTime = Boolean(event.expectedStartTime && event.expectedEndTime);
 
       return `
         <div class="event-top-bar">
@@ -586,12 +588,20 @@
                 : ''
             }
             <div class="event-badges-row">
-              <span class="info-badge highlight">
-                📆 Предполагаемый промежуток: ${escapeHtml(formatReadableDate(event.startDate))} — ${escapeHtml(formatReadableDate(event.endDate))}
-              </span>
-              <span class="info-badge">
-                ⏰ Ожидаемое время: ${escapeHtml(event.expectedStartTime || '00:00')} – ${escapeHtml(event.expectedEndTime || '24:00')}
-              </span>
+              ${
+                event.startDate && event.endDate
+                  ? `<span class="info-badge highlight">
+                      📆 Промежуток дат: ${escapeHtml(formatReadableDate(event.startDate))} — ${escapeHtml(formatReadableDate(event.endDate))}
+                    </span>`
+                  : ''
+              }
+              ${
+                hasExpectedTime
+                  ? `<span class="info-badge">
+                      ⏰ Предполагаемое время: ${escapeHtml(event.expectedStartTime)} – ${escapeHtml(event.expectedEndTime)}
+                    </span>`
+                  : ''
+              }
               <span class="info-badge">
                 👥 Участников: ${participants.length}
               </span>
@@ -618,8 +628,8 @@
             </button>
 
             ${
-              participants.length > 1 || isAdmin
-                ? `<select id="inspect-user-select" class="form-select" style="width: auto; padding: 5px 10px; font-size: 0.84rem;" title="Чью разметку отображать в режиме разметки">
+              isAdmin && participants.length > 0
+                ? `<select id="inspect-user-select" class="form-select" style="width: auto; padding: 5px 10px; font-size: 0.84rem;" title="Чью разметку отображать и редактировать">
                     ${participants
                       .map(
                         (u) =>
@@ -633,25 +643,25 @@
             }
 
             <button type="button" id="clear-my-marks-btn" class="btn btn-sm" title="Очистить всю разметку в этом мероприятии">
-              🧹 Очистить мою разметку
+              🧹 Очистить разметку
             </button>
           </div>
 
           <div class="legend-range-group">
             <span class="legend-item">
               <span class="legend-box in-range"></span>
-              <span>Предполагаемый промежуток (светлый)</span>
+              <span>Предполагаемый промежуток</span>
             </span>
             <span class="legend-item">
               <span class="legend-box out-range"></span>
-              <span>Вне промежутка (серый, тоже можно выбирать)</span>
+              <span>Вне промежутка</span>
             </span>
           </div>
         </div>
 
         ${
           this.calendarSubView === 'day' && this.selectedDateStr
-            ? this.renderDay30MinView(event, targetUser, currentUser)
+            ? this.renderDay30MinView(event, targetUser)
             : this.renderMonthCalendarView(event, targetUser)
         }
 
@@ -672,9 +682,13 @@
             <span class="calendar-month-title">${escapeHtml(monthTitle)}</span>
             <button type="button" class="btn btn-sm" id="cal-next-month">След. месяц ▶</button>
           </div>
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <button type="button" class="btn btn-sm" id="cal-jump-event">🎯 К датам мероприятия</button>
-          </div>
+          ${
+            event.startDate
+              ? `<div style="display: flex; align-items: center; gap: 8px;">
+                  <button type="button" class="btn btn-sm" id="cal-jump-event">🎯 К датам мероприятия</button>
+                </div>`
+              : ''
+          }
         </div>
 
         <div class="calendar-grid-weekdays">
@@ -689,12 +703,10 @@
 
     _buildCalendarMonthCells(year, month) {
       const firstDay = new Date(year, month, 1);
-      // Понедельник = 0, Воскресенье = 6
       const startWeekday = (firstDay.getDay() + 6) % 7;
       const daysInMonth = new Date(year, month + 1, 0).getDate();
 
       const cells = [];
-      // Дни предыдущего месяца для выравнивания сетки
       for (let i = startWeekday - 1; i >= 0; i--) {
         const d = new Date(year, month, -i);
         cells.push({
@@ -703,7 +715,6 @@
           isCurrentMonth: false
         });
       }
-      // Дни текущего месяца
       for (let day = 1; day <= daysInMonth; day++) {
         const d = new Date(year, month, day);
         cells.push({
@@ -712,7 +723,6 @@
           isCurrentMonth: true
         });
       }
-      // Дни следующего месяца до кратности 7
       const remainder = cells.length % 7;
       if (remainder !== 0) {
         const needed = 7 - remainder;
@@ -728,6 +738,9 @@
       return cells;
     }
 
+    /**
+     * Чистая клетка дня календаря без лишних текстовых надписей
+     */
     renderCalendarDayCell(cell, event, targetUser) {
       const inRange = store.isDateInExpectedRange(event, cell.dateStr);
       const rangeClass = inRange ? 'in-expected-range' : 'out-of-expected-range';
@@ -744,7 +757,6 @@
           paintedClass = `painted-${userSummary.dominantColor}`;
         }
       } else {
-        // В режиме общей сводки подсвечиваем день, если есть доступные участники
         if (groupStats.green.length > 0 && groupStats.red.length === 0) {
           paintedClass = 'painted-green';
         } else if (groupStats.availableCount > 0) {
@@ -754,51 +766,30 @@
         }
       }
 
-      // Мини-полоска пропорций (если день раскрашен по часам)
       let bodyHtml = '';
       if (this.calendarMode === 'personal') {
         const { counts, uniformColor } = userSummary;
-        if (uniformColor) {
-          const meta = COLOR_META[uniformColor];
-          bodyHtml = `
-            <div>
-              <span class="day-status-pill ${uniformColor}">${meta.icon} Весь день: ${meta.short}</span>
-            </div>
-          `;
-        } else if (counts.total > 0) {
+        if (!uniformColor && counts.total > 0) {
           const gPct = Math.round((counts.green / 48) * 100);
           const bPct = Math.round((counts.blue / 48) * 100);
           const rPct = Math.round((counts.red / 48) * 100);
           bodyHtml = `
-            <div>
-              <div class="day-mini-bar" title="Разметка по 30-минутным интервалам">
-                ${gPct > 0 ? `<div class="day-mini-segment green" style="width:${gPct}%"></div>` : ''}
-                ${bPct > 0 ? `<div class="day-mini-segment blue" style="width:${bPct}%"></div>` : ''}
-                ${rPct > 0 ? `<div class="day-mini-segment red" style="width:${rPct}%"></div>` : ''}
-              </div>
-              <div class="day-counts-caption">
-                ${counts.green > 0 ? `<span>🟢 ${counts.green / 2}ч</span>` : ''}
-                ${counts.blue > 0 ? `<span>🔵 ${counts.blue / 2}ч</span>` : ''}
-                ${counts.red > 0 ? `<span>🔴 ${counts.red / 2}ч</span>` : ''}
-              </div>
+            <div class="day-mini-bar">
+              ${gPct > 0 ? `<div class="day-mini-segment green" style="width:${gPct}%"></div>` : ''}
+              ${bPct > 0 ? `<div class="day-mini-segment blue" style="width:${bPct}%"></div>` : ''}
+              ${rPct > 0 ? `<div class="day-mini-segment red" style="width:${rPct}%"></div>` : ''}
             </div>
           `;
-        } else {
-          bodyHtml = `<div style="font-size: 0.73rem; opacity: 0.75; margin-top: auto;">ЛКМ — часы · ПКМ — день</div>`;
         }
       } else {
-        // Режим общей сводки на клетке дня
         if (groupStats.availableCount > 0 || groupStats.red.length > 0) {
           bodyHtml = `
-            <div class="day-counts-caption" style="margin-top: auto;">
-              ${groupStats.green.length > 0 ? `<span>🟢 ${groupStats.green.length}</span>` : ''}
-              ${groupStats.blue.length > 0 ? `<span>🔵 ${groupStats.blue.length}</span>` : ''}
-              ${groupStats.red.length > 0 ? `<span>🔴 ${groupStats.red.length}</span>` : ''}
-              <span style="font-weight: 700;">Свободны: ${groupStats.availableCount}/${groupStats.totalParticipants}</span>
+            <div class="day-counts-caption">
+              ${groupStats.green.length > 0 ? `<span>🟢${groupStats.green.length}</span>` : ''}
+              ${groupStats.blue.length > 0 ? `<span>🔵${groupStats.blue.length}</span>` : ''}
+              ${groupStats.red.length > 0 ? `<span>🔴${groupStats.red.length}</span>` : ''}
             </div>
           `;
-        } else {
-          bodyHtml = `<div style="font-size: 0.73rem; opacity: 0.7; margin-top: auto;">Нет отметок</div>`;
         }
       }
 
@@ -806,25 +797,23 @@
         <div
           class="calendar-day-cell ${rangeClass} ${monthClass} ${paintedClass}"
           data-date="${escapeHtml(cell.dateStr)}"
-          title="ЛКМ — перейти в дату (${escapeHtml(formatReadableDate(cell.dateStr))}) для разметки по 30 минут. ПКМ — закрасить день."
         >
           <div class="day-top-row">
             <span class="day-number">${cell.dayNum}</span>
-            <span class="day-range-tag">${inRange ? 'В промежутке' : 'Вне промежутка'}</span>
           </div>
           ${bodyHtml}
         </div>
       `;
     }
 
-    // ==================== ДЕТАЛЬНЫЙ ВИД ДНЯ (ШАГ 30 МИНУТ) ====================
+    // ==================== ДЕТАЛЬНЫЙ ВИД ДНЯ ====================
 
-    renderDay30MinView(event, targetUser, currentUser) {
+    renderDay30MinView(event, targetUser) {
       const dateStr = this.selectedDateStr;
-      const inDateRange = store.isDateInExpectedRange(event, dateStr);
       const allSlots = store.ALL_TIME_SLOTS;
-      const morningSlots = allSlots.slice(0, 24); // 00:00 - 12:00
-      const eveningSlots = allSlots.slice(24, 48); // 12:00 - 24:00
+      const morningSlots = allSlots.slice(0, 24);
+      const eveningSlots = allSlots.slice(24, 48);
+      const hasExpectedTime = Boolean(event.expectedStartTime && event.expectedEndTime);
 
       return `
         <div class="day-detail-header">
@@ -835,16 +824,17 @@
               📅 ${escapeHtml(formatReadableDate(dateStr))}
             </h3>
             <button type="button" class="btn btn-sm" id="next-day-btn" title="Следующий день">▶</button>
-            <span class="info-badge ${inDateRange ? 'highlight' : ''}">
-              ${inDateRange ? '✨ День в предполагаемом промежутке' : '⚪ День вне предполагаемого промежутка (доступен для выбора)'}
-            </span>
           </div>
 
           <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-            <button type="button" class="btn btn-sm" id="paint-expected-day-btn" title="Закрасить слоты предполагаемого времени выбранным на панели цветом">
-              Закрасить промежуток (${escapeHtml(event.expectedStartTime)}–${escapeHtml(event.expectedEndTime)})
-            </button>
-            <button type="button" class="btn btn-sm" id="paint-all-day-btn" title="Закрасить все 48 слотов этого дня выбранным цветом">
+            ${
+              hasExpectedTime
+                ? `<button type="button" class="btn btn-sm" id="paint-expected-day-btn" title="Закрасить слоты предполагаемого времени выбранным на панели цветом">
+                    Закрасить промежуток (${escapeHtml(event.expectedStartTime)}–${escapeHtml(event.expectedEndTime)})
+                  </button>`
+                : ''
+            }
+            <button type="button" class="btn btn-sm" id="paint-all-day-btn" title="Закрасить весь день выбранным цветом">
               Закрасить весь день
             </button>
             <button type="button" class="btn btn-sm" id="clear-day-btn">
@@ -855,11 +845,11 @@
 
         <div class="slots-columns-wrapper" id="day-slots-grid">
           <div class="slots-column">
-            <div class="slots-column-header">🌙 Ночь и Утро (00:00 – 12:00, шаг 30 мин)</div>
+            <div class="slots-column-header">🌙 Ночь и Утро (00:00 – 12:00)</div>
             ${morningSlots.map((slotKey) => this.renderSingleTimeSlot(event, targetUser, dateStr, slotKey)).join('')}
           </div>
           <div class="slots-column">
-            <div class="slots-column-header">☀️ День и Вечер (12:00 – 24:00, шаг 30 мин)</div>
+            <div class="slots-column-header">☀️ День и Вечер (12:00 – 24:00)</div>
             ${eveningSlots.map((slotKey) => this.renderSingleTimeSlot(event, targetUser, dateStr, slotKey)).join('')}
           </div>
         </div>
@@ -889,9 +879,8 @@
 
       const myBadge = myColor
         ? `<span class="day-status-pill ${myColor}" style="margin: 0;">${COLOR_META[myColor].icon} ${COLOR_META[myColor].short}</span>`
-        : `<span style="font-size: 0.75rem; opacity: 0.7;">${inExpected ? 'Ожидаемое время' : 'Вне промежутка'}</span>`;
+        : '';
 
-      // Чипы участников, отметивших этот слот
       const chipsHtml = [
         ...groupStats.greenUsers.map(
           (u) => `<span class="mini-user-chip green" title="${escapeHtml(u.displayName)}: Предпочитаемое время">${escapeHtml(u.displayName)}</span>`
@@ -908,7 +897,6 @@
         <div
           class="time-slot-row ${rangeClass} ${paintedClass}"
           data-slot="${escapeHtml(slotKey)}"
-          title="Нажмите ПКМ (или зажмите ПКМ и проведите), чтобы покрасить интервал ${slotKey} – ${endLabel}"
         >
           <div style="display: flex; align-items: center; gap: 10px;">
             <span class="slot-time-label">${slotKey} – ${endLabel}</span>
@@ -930,7 +918,7 @@
           <div class="best-slots-panel">
             <div style="font-weight: 700; font-size: 1rem;">🏆 Лучшее время по итогам опроса</div>
             <div style="font-size: 0.86rem; color: var(--text-secondary); margin-top: 4px;">
-              Пока никто из участников не отметил свободное время (зелёным или синим цветом). Нажмите ПКМ по датам или слотам времени!
+              Пока никто из участников не отметил свободное время (зелёным или синим цветом). Нажмите ПКМ по датам или времени!
             </div>
           </div>
         `;
@@ -977,7 +965,6 @@
       const currentUser = store.getCurrentUser();
       const event = store.getEventById(this.selectedEventId);
 
-      // Выбор мероприятия в боковой панели
       document.querySelectorAll('.event-card-item').forEach((card) => {
         card.addEventListener('click', () => {
           const id = card.getAttribute('data-event-id');
@@ -989,7 +976,6 @@
         });
       });
 
-      // Кнопки создания / редактирования / удаления мероприятия (для Админа)
       const createBtn = document.getElementById('create-event-btn');
       if (createBtn) {
         createBtn.addEventListener('click', () => this.openEventFormModal(null));
@@ -1021,7 +1007,6 @@
         });
       }
 
-      // Переключение режима: Разметка / Общая сводка
       const personalBtn = document.getElementById('mode-personal-btn');
       if (personalBtn) {
         personalBtn.addEventListener('click', () => {
@@ -1068,7 +1053,6 @@
         });
       }
 
-      // Карточки лучших пересечений -> переход в конкретный день
       document.querySelectorAll('[data-jump-date]').forEach((card) => {
         card.addEventListener('click', () => {
           this.selectedDateStr = card.getAttribute('data-jump-date');
@@ -1077,7 +1061,6 @@
         });
       });
 
-      // Навигация по месяцам
       const prevMonthBtn = document.getElementById('cal-prev-month');
       if (prevMonthBtn) {
         prevMonthBtn.addEventListener('click', () => {
@@ -1110,7 +1093,6 @@
         });
       }
 
-      // Привязка интерактивности клеток месяца (ЛКМ - переход внутрь даты, ПКМ - покраска дня)
       const daysGrid = document.getElementById('calendar-days-grid');
       if (daysGrid) {
         daysGrid.addEventListener('contextmenu', (e) => e.preventDefault());
@@ -1118,7 +1100,6 @@
         daysGrid.querySelectorAll('.calendar-day-cell').forEach((cell) => {
           const dateStr = cell.getAttribute('data-date');
 
-          // ЛКМ — перейти внутрь конкретной даты (интервалы по 30 минут)
           cell.addEventListener('click', (e) => {
             if (e.button !== 0) return;
             this.selectedDateStr = dateStr;
@@ -1126,13 +1107,11 @@
             this.render();
           });
 
-          // ПКМ — покрасить день (или начать протягивание с зажатой ПКМ)
           cell.addEventListener('mousedown', (e) => {
             if (e.button === 2) {
               e.preventDefault();
               const currentSummary = store.getUserDaySummary(event, targetUserId, dateStr);
               let nextColor = this.activeColor === 'erase' ? null : this.activeColor;
-              // Если весь день уже покрашен этим же цветом, повторное нажатие ПКМ снимает покраску
               if (nextColor && currentSummary.uniformColor === nextColor) {
                 nextColor = null;
               }
@@ -1165,7 +1144,6 @@
         });
       }
 
-      // Обработчики детального вида дня (30-минутные слоты)
       const backBtn = document.getElementById('back-to-month-btn');
       if (backBtn) {
         backBtn.addEventListener('click', () => {
@@ -1219,7 +1197,6 @@
         });
       }
 
-      // Привязка покраски 30-минутных слотов по ПКМ
       const slotsGrid = document.getElementById('day-slots-grid');
       if (slotsGrid && this.selectedDateStr) {
         slotsGrid.addEventListener('contextmenu', (e) => e.preventDefault());
@@ -1321,6 +1298,8 @@
       );
 
       const timeOptions = store.ALL_TIME_SLOTS.concat(['24:00']);
+      const curStartT = existingEvent ? existingEvent.expectedStartTime || '' : '';
+      const curEndT = existingEvent ? existingEvent.expectedEndTime || '' : '';
 
       const html = `
         <div class="modal-header">
@@ -1338,35 +1317,37 @@
           </div>
           <div class="form-row-2">
             <div class="form-group">
-              <label class="form-label">Начало предполагаемого промежутка *</label>
-              <input type="date" id="ev-start-date" class="form-input" required value="${escapeHtml(existingEvent ? existingEvent.startDate : defaultStart)}" />
+              <label class="form-label">Начало промежутка дат (необязательно)</label>
+              <input type="date" id="ev-start-date" class="form-input" value="${escapeHtml(existingEvent ? existingEvent.startDate : defaultStart)}" />
             </div>
             <div class="form-group">
-              <label class="form-label">Конец предполагаемого промежутка *</label>
-              <input type="date" id="ev-end-date" class="form-input" required value="${escapeHtml(existingEvent ? existingEvent.endDate : defaultEnd)}" />
+              <label class="form-label">Конец промежутка дат (необязательно)</label>
+              <input type="date" id="ev-end-date" class="form-input" value="${escapeHtml(existingEvent ? existingEvent.endDate : defaultEnd)}" />
             </div>
           </div>
           <div class="form-row-2">
             <div class="form-group">
-              <label class="form-label">Предполагаемое время (с)</label>
+              <label class="form-label">Предполагаемое время с (необязательно)</label>
               <select id="ev-start-time" class="form-select">
+                <option value="" ${curStartT === '' ? 'selected' : ''}>Не указано</option>
                 ${timeOptions
                   .slice(0, 48)
                   .map(
                     (t) =>
-                      `<option value="${t}" ${(existingEvent ? existingEvent.expectedStartTime : '10:00') === t ? 'selected' : ''}>${t}</option>`
+                      `<option value="${t}" ${curStartT === t ? 'selected' : ''}>${t}</option>`
                   )
                   .join('')}
               </select>
             </div>
             <div class="form-group">
-              <label class="form-label">Предполагаемое время (до)</label>
+              <label class="form-label">Предполагаемое время до (необязательно)</label>
               <select id="ev-end-time" class="form-select">
+                <option value="" ${curEndT === '' ? 'selected' : ''}>Не указано</option>
                 ${timeOptions
                   .slice(1)
                   .map(
                     (t) =>
-                      `<option value="${t}" ${(existingEvent ? existingEvent.expectedEndTime : '22:00') === t ? 'selected' : ''}>${t}</option>`
+                      `<option value="${t}" ${curEndT === t ? 'selected' : ''}>${t}</option>`
                   )
                   .join('')}
               </select>
@@ -1437,7 +1418,7 @@
           ).map((cb) => cb.value);
 
           const errEl = document.getElementById('ev-form-error');
-          if (expectedStartTime >= expectedEndTime) {
+          if (expectedStartTime && expectedEndTime && expectedStartTime >= expectedEndTime) {
             errEl.textContent = 'Время окончания промежутка должно быть позже времени начала';
             errEl.style.display = 'block';
             return;
@@ -1660,10 +1641,9 @@
 
       return `
         <div style="display: flex; flex-direction: column; gap: 24px;">
-          <!-- Карточка выбора темы оформления -->
           <div class="settings-card">
             <h2 class="settings-card-title">🎨 Темы оформления</h2>
-            <p class="settings-card-desc">Выберите цветовую тему интерфейса. Настройка применяется мгновенно и сохраняется в браузере.</p>
+            <p class="settings-card-desc">Выберите тему: интерфейс и узорчатый фон в стиле Telegram автоматически сменят свою цветовую палитру.</p>
             <div class="themes-grid">
               ${THEMES.map(
                 (t) => `
@@ -1682,7 +1662,6 @@
           </div>
 
           <div class="settings-grid">
-            <!-- Карточка смены пароля с вводом дважды и подтверждением действия -->
             <div class="settings-card">
               <h2 class="settings-card-title">🔐 Смена пароля аккаунта</h2>
               <p class="settings-card-desc">
@@ -1706,29 +1685,29 @@
               </form>
             </div>
 
-            <!-- Карточка настройки БД Firebase (Только для администратора) -->
             ${
               isAdmin
                 ? `
               <div class="settings-card">
                 <h2 class="settings-card-title">🔥 Настройка БД Firebase (Для администратора)</h2>
                 <p class="settings-card-desc">
-                  Подключите Cloud Firestore или Realtime Database для онлайн-синхронизации между всеми участниками на GitHub Pages.
+                  Вставьте ваш объект конфигурации <code>firebaseConfig</code> (поддерживается как JSON, так и JS-объект без кавычек у ключей).
                 </p>
 
                 <div class="form-group">
                   <label class="form-label" for="fb-mode-select">Режим базы данных Firebase</label>
                   <select id="fb-mode-select" class="form-select">
-                    <option value="firestore" ${!fbCfg || fbCfg.mode === 'firestore' ? 'selected' : ''}>Cloud Firestore (Рекомендуется)</option>
+                    <option value="auto">Автоматически (Realtime DB при наличии databaseURL)</option>
                     <option value="rtdb" ${fbCfg && fbCfg.mode === 'rtdb' ? 'selected' : ''}>Realtime Database (RTDB)</option>
+                    <option value="firestore" ${fbCfg && fbCfg.mode === 'firestore' ? 'selected' : ''}>Cloud Firestore</option>
                   </select>
                 </div>
 
                 <div class="form-group">
                   <label class="form-label" for="fb-config-input">
-                    Объект конфигурации <code>firebaseConfig</code> (JSON или код из консоли Firebase)
+                    Объект конфигурации <code>firebaseConfig</code>
                   </label>
-                  <textarea id="fb-config-input" class="form-textarea" rows="8" style="font-family: monospace; font-size: 0.82rem;" placeholder='{\n  "apiKey": "AIzaSy...",\n  "authDomain": "project.firebaseapp.com",\n  "databaseURL": "https://project-default-rtdb.firebaseio.com",\n  "projectId": "project",\n  "storageBucket": "project.appspot.com",\n  "messagingSenderId": "...",\n  "appId": "..."\n}'>${escapeHtml(fbCfg ? JSON.stringify(fbCfg, null, 2) : '')}</textarea>
+                  <textarea id="fb-config-input" class="form-textarea" rows="8" style="font-family: monospace; font-size: 0.82rem;" placeholder='{\n  apiKey: "AIzaSy...",\n  authDomain: "time-poll.firebaseapp.com",\n  databaseURL: "https://time-poll-default-rtdb.europe-west1.firebasedatabase.app",\n  projectId: "time-poll",\n  storageBucket: "time-poll.firebasestorage.app",\n  messagingSenderId: "...",\n  appId: "..."\n}'>${escapeHtml(fbCfg ? JSON.stringify(fbCfg, null, 2) : '')}</textarea>
                 </div>
 
                 <div id="fb-config-msg" style="font-size: 0.85rem; margin-bottom: 12px; display: none;"></div>
@@ -1764,7 +1743,6 @@
     }
 
     bindSettingsTab() {
-      // Переключение темы
       document.querySelectorAll('[data-theme-select]').forEach((card) => {
         card.addEventListener('click', () => {
           const themeId = card.getAttribute('data-theme-select');
@@ -1774,7 +1752,6 @@
         });
       });
 
-      // Смена пароля (с двойным вводом + модальным подтверждением действия)
       const cpForm = document.getElementById('change-password-form');
       if (cpForm) {
         cpForm.addEventListener('submit', (e) => {
@@ -1806,7 +1783,6 @@
             return;
           }
 
-          // Обязательное подтверждение действия перед сменой пароля
           this.openConfirmModal({
             title: 'Подтверждение смены пароля',
             message: `Вы действительно хотите сменить пароль для вашего аккаунта @${user.login}? Подтвердите выполнение действия.`,
@@ -1826,7 +1802,6 @@
         });
       }
 
-      // Настройки Firebase для Админа
       const fbSaveBtn = document.getElementById('fb-save-btn');
       if (fbSaveBtn) {
         fbSaveBtn.addEventListener('click', async () => {
@@ -1913,8 +1888,6 @@
       }
     }
 
-    // ==================== УНИВЕРСАЛЬНОЕ ОКНО ПОДТВЕРЖДЕНИЯ ДЕЙСТВИЯ ====================
-
     openConfirmModal({ title, message, confirmText = 'Подтвердить', danger = false, onConfirm }) {
       const html = `
         <div class="modal-header">
@@ -1949,4 +1922,3 @@
     app.init();
   });
 })();
-

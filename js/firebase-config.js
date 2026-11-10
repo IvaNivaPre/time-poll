@@ -1,19 +1,13 @@
 /**
- * Файл конфигурации Firebase по умолчанию (для GitHub Pages).
- * Вы можете настроить Firebase прямо на сайте во вкладке "Настройки" (под аккаунтом администратора),
- * либо вставить объект конфигурации сюда перед загрузкой на GitHub Pages.
+ * Конфигурация Firebase по умолчанию для TimePoll.
  */
-window.DEFAULT_FIREBASE_CONFIG = null;
-/* Пример:
 window.DEFAULT_FIREBASE_CONFIG = {
-  mode: "firestore", // "firestore" или "rtdb" (Realtime Database)
-  apiKey: "AIzaSy...",
-  authDomain: "your-project.firebaseapp.com",
-  databaseURL: "https://your-project-default-rtdb.firebaseio.com",
-  projectId: "your-project",
-  storageBucket: "your-project.appspot.com",
-  messagingSenderId: "1234567890",
-  appId: "1:1234567890:web:abcdef"
+  mode: "rtdb",
+  apiKey: "AIzaSyAyHmhDGoGkcQ_PpMvzzC__kdD3u0lDS3w",
+  authDomain: "time-poll.firebaseapp.com",
+  databaseURL: "https://time-poll-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "time-poll",
+  storageBucket: "time-poll.firebasestorage.app",
+  messagingSenderId: "1022876171900",
+  appId: "1:1022876171900:web:ab9a5c4c878a858d1353f9"
 };
-*/
-

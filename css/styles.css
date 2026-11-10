@@ -1,49 +1,58 @@
 /* ==========================================================================
    TimePoll — Стили интерфейса, Календаря, Покраски слотов и Тем оформления
+   Включает фирменный узорчатый фон в стиле Telegram, меняющий цвет от темы
    ========================================================================== */
+
+:root {
+  /* Бесшовный векторный паттерн в стиле Telegram (часы, календари, звезды, галочки, сообщения, молнии, кружки) */
+  --tg-pattern-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240' viewBox='0 0 240 240' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cg opacity='0.9'%3E%3C!-- Часы --%3E%3Ccircle cx='36' cy='36' r='16'/%3E%3Cpath d='M36 27v9l6 4'/%3E%3C!-- Календарь --%3E%3Crect x='104' y='20' width='30' height='26' rx='5'/%3E%3Cpath d='M112 16v8M126 16v8M104 29h30'/%3E%3Ccircle cx='113' cy='37' r='1.5' fill='black'/%3E%3Ccircle cx='125' cy='37' r='1.5' fill='black'/%3E%3C!-- Звезда --%3E%3Cpath d='M196 20l4 9 10 1-7 7 2 10-9-5-9 5 2-10-7-7 10-1z'/%3E%3C!-- Облачко чата --%3E%3Cpath d='M28 106h28a8 8 0 0 1 8 8v14a8 8 0 0 1-8 8H38l-10 8v-8h0a8 8 0 0 1-8-8v-14a8 8 0 0 1 8-8z'/%3E%3Cpath d='M30 117h18M30 124h11'/%3E%3C!-- Песочные часы --%3E%3Cpath d='M110 96h20M110 132h20M113 96c0 12 14 12 14 18s-14 6-14 18M127 96c0 12-14 12-14 18s14 6 14 18'/%3E%3C!-- Кружка кофе --%3E%3Cpath d='M182 106h22v14a11 11 0 0 1-22 0v-14z'/%3E%3Cpath d='M204 110h4a5 5 0 0 1 0 10h-4M189 98c0 3 3 3 3 6M197 98c0 3 3 3 3 6'/%3E%3C!-- Будильник --%3E%3Ccircle cx='44' cy='196' r='15'/%3E%3Cpath d='M44 188v8l5 5M27 182l6-5M61 182l-6-5'/%3E%3C!-- Галочка в круге --%3E%3Ccircle cx='122' cy='194' r='15'/%3E%3Cpath d='M115 194l5 5 9-10'/%3E%3C!-- Молния --%3E%3Cpath d='M198 176l-12 18h11l-3 16 15-20h-11l0-14z'/%3E%3C!-- Мелкие декоративные элементы --%3E%3Ccircle cx='76' cy='68' r='3'/%3E%3Ccircle cx='160' cy='66' r='4'/%3E%3Cpath d='M78 156l3 6 6 3-6 3-3 6-3-6-6-3 6-3z'/%3E%3Cpath d='M162 152l2 5 5 2-5 2-2 5-2-5-5-2 5-2z'/%3E%3Ccircle cx='222' cy='144' r='3'/%3E%3Ccircle cx='16' cy='158' r='2.5'/%3E%3Cpath d='M72 222h12M78 216v12'/%3E%3C/g%3E%3C/svg%3E");
+}
 
 :root,
 [data-theme="dark"] {
-  --bg-body: #0f1117;
-  --bg-surface: #171b26;
-  --bg-elevated: #1f2535;
-  --bg-card: #1a1f2e;
+  --bg-body: #0e1621;
+  --tg-wallpaper-bg: radial-gradient(circle at 18% 20%, #1f2f46 0%, #0e1621 52%, #141e30 100%);
+  --tg-pattern-color: rgba(129, 140, 248, 0.13);
+
+  --bg-surface: rgba(23, 33, 43, 0.88);
+  --bg-elevated: rgba(32, 43, 56, 0.92);
+  --bg-card: rgba(26, 37, 48, 0.9);
   --text-primary: #f1f5f9;
   --text-secondary: #94a3b8;
   --text-muted: #64748b;
-  --border-color: #2a3246;
+  --border-color: rgba(148, 163, 184, 0.18);
   --accent: #6366f1;
   --accent-hover: #4f46e5;
-  --accent-soft: rgba(99, 102, 241, 0.16);
+  --accent-soft: rgba(99, 102, 241, 0.18);
 
-  /* Визуальное выделение предполагаемого промежутка и времени вне него */
-  --range-in-bg: #273047;
-  --range-in-border: #556396;
-  --range-in-hover: #303b57;
-  --range-out-bg: #12141c;
+  /* Визуальное выделение предполагаемого промежутка (более светлый) и времени вне него (серый) */
+  --range-in-bg: #2d3854;
+  --range-in-border: #6366f1;
+  --range-in-hover: #374569;
+  --range-out-bg: #181b22;
   --range-out-pattern: repeating-linear-gradient(
     -45deg,
-    rgba(148, 163, 184, 0.04),
-    rgba(148, 163, 184, 0.04) 6px,
-    rgba(15, 17, 23, 0.45) 6px,
-    rgba(15, 17, 23, 0.45) 12px
+    rgba(148, 163, 184, 0.06),
+    rgba(148, 163, 184, 0.06) 6px,
+    rgba(24, 27, 34, 0.75) 6px,
+    rgba(24, 27, 34, 0.75) 12px
   );
-  --range-out-border: #1e2330;
-  --range-out-text: #64748b;
+  --range-out-border: #2a2f3a;
+  --range-out-text: #7c8798;
 
   /* 3 цвета покраски: Зеленый, Синий, Красный */
   --paint-green-solid: #10b981;
-  --paint-green-bg: rgba(16, 185, 129, 0.28);
+  --paint-green-bg: rgba(16, 185, 129, 0.32);
   --paint-green-border: #10b981;
   --paint-green-text: #6ee7b7;
 
   --paint-blue-solid: #3b82f6;
-  --paint-blue-bg: rgba(59, 130, 246, 0.28);
+  --paint-blue-bg: rgba(59, 130, 246, 0.32);
   --paint-blue-border: #3b82f6;
   --paint-blue-text: #93c5fd;
 
   --paint-red-solid: #ef4444;
-  --paint-red-bg: rgba(239, 68, 68, 0.28);
+  --paint-red-bg: rgba(239, 68, 68, 0.32);
   --paint-red-border: #ef4444;
   --paint-red-text: #fca5a5;
 
@@ -54,16 +63,19 @@
   --radius-lg: 16px;
 }
 
-/* Светлая тема */
+/* Светлая тема (Классический светлый фон чата Telegram с мягким зеленовато-голубым градиентом) */
 [data-theme="light"] {
-  --bg-body: #f1f5f9;
-  --bg-surface: #ffffff;
-  --bg-elevated: #f8fafc;
-  --bg-card: #ffffff;
+  --bg-body: #d6e4c7;
+  --tg-wallpaper-bg: linear-gradient(135deg, #d4e6c3 0%, #a8d4b9 38%, #c7deeb 72%, #dfead1 100%);
+  --tg-pattern-color: rgba(45, 92, 68, 0.16);
+
+  --bg-surface: rgba(255, 255, 255, 0.9);
+  --bg-elevated: rgba(248, 250, 252, 0.94);
+  --bg-card: rgba(255, 255, 255, 0.92);
   --text-primary: #0f172a;
   --text-secondary: #475569;
   --text-muted: #94a3b8;
-  --border-color: #cbd5e1;
+  --border-color: rgba(100, 116, 139, 0.25);
   --accent: #4f46e5;
   --accent-hover: #4338ca;
   --accent-soft: rgba(79, 70, 229, 0.12);
@@ -72,29 +84,29 @@
   --range-in-bg: #ffffff;
   --range-in-border: #818cf8;
   --range-in-hover: #f5f7ff;
-  --range-out-bg: #d8dee6;
+  --range-out-bg: #d5dce4;
   --range-out-pattern: repeating-linear-gradient(
     -45deg,
-    rgba(100, 116, 139, 0.08),
-    rgba(100, 116, 139, 0.08) 6px,
-    rgba(203, 213, 225, 0.45) 6px,
-    rgba(203, 213, 225, 0.45) 12px
+    rgba(100, 116, 139, 0.09),
+    rgba(100, 116, 139, 0.09) 6px,
+    rgba(203, 213, 225, 0.5) 6px,
+    rgba(203, 213, 225, 0.5) 12px
   );
-  --range-out-border: #bfc8d4;
+  --range-out-border: #b8c2ce;
   --range-out-text: #64748b;
 
   --paint-green-solid: #10b981;
-  --paint-green-bg: rgba(16, 185, 129, 0.24);
+  --paint-green-bg: rgba(16, 185, 129, 0.26);
   --paint-green-border: #059669;
   --paint-green-text: #065f46;
 
   --paint-blue-solid: #3b82f6;
-  --paint-blue-bg: rgba(59, 130, 246, 0.24);
+  --paint-blue-bg: rgba(59, 130, 246, 0.26);
   --paint-blue-border: #2563eb;
   --paint-blue-text: #1e40af;
 
   --paint-red-solid: #ef4444;
-  --paint-red-bg: rgba(239, 68, 68, 0.22);
+  --paint-red-bg: rgba(239, 68, 68, 0.24);
   --paint-red-border: #dc2626;
   --paint-red-text: #991b1b;
 
@@ -104,43 +116,49 @@
 
 /* Полночь (Неон / Индиго) */
 [data-theme="midnight"] {
-  --bg-body: #070514;
-  --bg-surface: #110e26;
-  --bg-elevated: #1b163b;
-  --bg-card: #14102e;
+  --bg-body: #090618;
+  --tg-wallpaper-bg: radial-gradient(circle at 80% 15%, #2e1557 0%, #110b29 50%, #070514 100%);
+  --tg-pattern-color: rgba(192, 132, 252, 0.15);
+
+  --bg-surface: rgba(17, 14, 38, 0.88);
+  --bg-elevated: rgba(27, 22, 59, 0.92);
+  --bg-card: rgba(20, 16, 46, 0.9);
   --text-primary: #f5f3ff;
   --text-secondary: #a5b4fc;
   --text-muted: #6366f1;
-  --border-color: #2e265e;
+  --border-color: rgba(139, 92, 246, 0.25);
   --accent: #a855f7;
   --accent-hover: #9333ea;
   --accent-soft: rgba(168, 85, 247, 0.2);
 
-  --range-in-bg: #241d4d;
-  --range-in-border: #7c3aed;
-  --range-in-hover: #2f2663;
-  --range-out-bg: #0c0a1a;
+  --range-in-bg: #292157;
+  --range-in-border: #8b5cf6;
+  --range-in-hover: #342a6e;
+  --range-out-bg: #151421;
   --range-out-pattern: repeating-linear-gradient(
     -45deg,
-    rgba(168, 85, 247, 0.03),
-    rgba(168, 85, 247, 0.03) 6px,
-    rgba(10, 8, 22, 0.6) 6px,
-    rgba(10, 8, 22, 0.6) 12px
+    rgba(148, 163, 184, 0.05),
+    rgba(148, 163, 184, 0.05) 6px,
+    rgba(19, 18, 30, 0.7) 6px,
+    rgba(19, 18, 30, 0.7) 12px
   );
-  --range-out-border: #1d1838;
-  --range-out-text: #5b5482;
+  --range-out-border: #262438;
+  --range-out-text: #6e6a8f;
 }
 
 /* Изумрудный лес */
 [data-theme="forest"] {
-  --bg-body: #0b1612;
-  --bg-surface: #12221c;
-  --bg-elevated: #193027;
-  --bg-card: #142720;
+  --bg-body: #0a1813;
+  --tg-wallpaper-bg: linear-gradient(135deg, #0b241b 0%, #091712 50%, #143327 100%);
+  --tg-pattern-color: rgba(52, 211, 153, 0.14);
+
+  --bg-surface: rgba(18, 34, 28, 0.88);
+  --bg-elevated: rgba(25, 48, 39, 0.92);
+  --bg-card: rgba(20, 39, 32, 0.9);
   --text-primary: #ecfdf5;
   --text-secondary: #86efac;
   --text-muted: #4d7c6a;
-  --border-color: #234236;
+  --border-color: rgba(52, 211, 153, 0.22);
   --accent: #10b981;
   --accent-hover: #059669;
   --accent-soft: rgba(16, 185, 129, 0.18);
@@ -148,28 +166,31 @@
   --range-in-bg: #1f3c31;
   --range-in-border: #34d399;
   --range-in-hover: #264a3c;
-  --range-out-bg: #0e1915;
+  --range-out-bg: #151d1a;
   --range-out-pattern: repeating-linear-gradient(
     -45deg,
-    rgba(148, 163, 184, 0.04),
-    rgba(148, 163, 184, 0.04) 6px,
-    rgba(11, 22, 18, 0.6) 6px,
-    rgba(11, 22, 18, 0.6) 12px
+    rgba(148, 163, 184, 0.05),
+    rgba(148, 163, 184, 0.05) 6px,
+    rgba(21, 29, 26, 0.7) 6px,
+    rgba(21, 29, 26, 0.7) 12px
   );
-  --range-out-border: #182b24;
-  --range-out-text: #57756a;
+  --range-out-border: #25332e;
+  --range-out-text: #687d75;
 }
 
 /* Океан (Морской бриз) */
 [data-theme="ocean"] {
-  --bg-body: #091521;
-  --bg-surface: #0f2133;
-  --bg-elevated: #162e47;
-  --bg-card: #12263a;
+  --bg-body: #081523;
+  --tg-wallpaper-bg: radial-gradient(circle at 25% 80%, #10375c 0%, #091929 55%, #0c2640 100%);
+  --tg-pattern-color: rgba(56, 189, 248, 0.15);
+
+  --bg-surface: rgba(15, 33, 51, 0.88);
+  --bg-elevated: rgba(22, 46, 71, 0.92);
+  --bg-card: rgba(18, 38, 58, 0.9);
   --text-primary: #f0f9ff;
   --text-secondary: #7dd3fc;
   --text-muted: #4b799e;
-  --border-color: #1f3d5c;
+  --border-color: rgba(56, 189, 248, 0.22);
   --accent: #0ea5e9;
   --accent-hover: #0284c7;
   --accent-soft: rgba(14, 165, 233, 0.18);
@@ -177,28 +198,31 @@
   --range-in-bg: #1b3a59;
   --range-in-border: #38bdf8;
   --range-in-hover: #22476b;
-  --range-out-bg: #0c1926;
+  --range-out-bg: #131c26;
   --range-out-pattern: repeating-linear-gradient(
     -45deg,
-    rgba(125, 211, 252, 0.03),
-    rgba(125, 211, 252, 0.03) 6px,
-    rgba(9, 21, 33, 0.6) 6px,
-    rgba(9, 21, 33, 0.6) 12px
+    rgba(148, 163, 184, 0.05),
+    rgba(148, 163, 184, 0.05) 6px,
+    rgba(19, 28, 38, 0.7) 6px,
+    rgba(19, 28, 38, 0.7) 12px
   );
-  --range-out-border: #162c42;
-  --range-out-text: #527391;
+  --range-out-border: #233242;
+  --range-out-text: #657c94;
 }
 
 /* Теплый закат */
 [data-theme="sunset"] {
   --bg-body: #1c1210;
-  --bg-surface: #291a17;
-  --bg-elevated: #38231f;
-  --bg-card: #2e1d19;
+  --tg-wallpaper-bg: linear-gradient(135deg, #3b1c16 0%, #1c110f 52%, #331e14 100%);
+  --tg-pattern-color: rgba(251, 146, 60, 0.15);
+
+  --bg-surface: rgba(41, 26, 23, 0.88);
+  --bg-elevated: rgba(56, 35, 31, 0.92);
+  --bg-card: rgba(46, 29, 25, 0.9);
   --text-primary: #fff7ed;
   --text-secondary: #fdba74;
   --text-muted: #9a6b5c;
-  --border-color: #4a2f29;
+  --border-color: rgba(251, 146, 60, 0.22);
   --accent: #f97316;
   --accent-hover: #ea580c;
   --accent-soft: rgba(249, 115, 22, 0.18);
@@ -206,20 +230,20 @@
   --range-in-bg: #452b25;
   --range-in-border: #fb923c;
   --range-in-hover: #54352d;
-  --range-out-bg: #17100e;
+  --range-out-bg: #1d1817;
   --range-out-pattern: repeating-linear-gradient(
     -45deg,
-    rgba(251, 146, 60, 0.03),
-    rgba(251, 146, 60, 0.03) 6px,
-    rgba(23, 16, 14, 0.6) 6px,
-    rgba(23, 16, 14, 0.6) 12px
+    rgba(148, 163, 184, 0.05),
+    rgba(148, 163, 184, 0.05) 6px,
+    rgba(29, 24, 23, 0.7) 6px,
+    rgba(29, 24, 23, 0.7) 12px
   );
-  --range-out-border: #2b1d1a;
-  --range-out-text: #7c6058;
+  --range-out-border: #332927;
+  --range-out-text: #857470;
 }
 
 /* ==========================================================================
-   Базовый сброс и типографика
+   Базовый сброс, типографика и узорчатый фон Telegram
    ========================================================================== */
 
 *,
@@ -235,7 +259,36 @@ body {
   color: var(--text-primary);
   line-height: 1.5;
   min-height: 100vh;
-  transition: background-color 0.2s ease, color 0.2s ease;
+  position: relative;
+  overflow-x: hidden;
+  transition: background-color 0.25s ease, color 0.2s ease;
+}
+
+/* Градиентная подложка обоев Telegram */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background: var(--tg-wallpaper-bg);
+  transition: background 0.35s ease;
+}
+
+/* Векторный узор чата Telegram, меняющий свой цвет через --tg-pattern-color */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-color: var(--tg-pattern-color);
+  -webkit-mask-image: var(--tg-pattern-mask);
+  mask-image: var(--tg-pattern-mask);
+  -webkit-mask-repeat: repeat;
+  mask-repeat: repeat;
+  -webkit-mask-size: 240px 240px;
+  mask-size: 240px 240px;
+  pointer-events: none;
+  transition: background-color 0.35s ease;
 }
 
 button,
@@ -262,6 +315,7 @@ textarea {
   width: 100%;
   max-width: 430px;
   background: var(--bg-surface);
+  backdrop-filter: blur(12px);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
   padding: 32px;
@@ -309,6 +363,7 @@ textarea {
   top: 0;
   z-index: 40;
   background: var(--bg-surface);
+  backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border-color);
   padding: 12px 24px;
   display: flex;
@@ -459,6 +514,7 @@ textarea {
   top: 63px;
   z-index: 35;
   background: var(--bg-surface);
+  backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border-color);
   padding: 10px 24px;
   display: flex;
@@ -597,12 +653,14 @@ textarea {
 /* Боковая колонка списка мероприятий */
 .sidebar-panel {
   background: var(--bg-surface);
+  backdrop-filter: blur(12px);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
   padding: 18px;
   display: flex;
   flex-direction: column;
   gap: 14px;
+  box-shadow: var(--shadow-sm);
 }
 
 .sidebar-header {
@@ -672,12 +730,14 @@ textarea {
 
 .workspace-panel {
   background: var(--bg-surface);
+  backdrop-filter: blur(12px);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
   padding: 24px;
   display: flex;
   flex-direction: column;
   gap: 20px;
+  box-shadow: var(--shadow-sm);
 }
 
 .event-top-bar {
@@ -819,9 +879,9 @@ textarea {
 }
 
 .calendar-day-cell {
-  min-height: 108px;
+  min-height: 76px;
   border-radius: var(--radius-md);
-  padding: 10px;
+  padding: 10px 12px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -887,24 +947,7 @@ textarea {
 
 .day-number {
   font-weight: 700;
-  font-size: 1rem;
-}
-
-.day-range-tag {
-  font-size: 0.68rem;
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-weight: 600;
-}
-
-.in-expected-range .day-range-tag {
-  background: rgba(99, 102, 241, 0.22);
-  color: var(--text-primary);
-}
-
-.out-of-expected-range .day-range-tag {
-  background: rgba(100, 116, 139, 0.2);
-  color: var(--text-secondary);
+  font-size: 1.05rem;
 }
 
 .day-status-pill {
@@ -931,13 +974,13 @@ textarea {
 
 /* Мини-полоска смешанных слотов внутри дня */
 .day-mini-bar {
-  height: 7px;
+  height: 6px;
   width: 100%;
   border-radius: 999px;
   overflow: hidden;
   display: flex;
   background: rgba(0, 0, 0, 0.25);
-  margin-top: 6px;
+  margin-top: auto;
 }
 
 .day-mini-segment.green {
@@ -953,14 +996,14 @@ textarea {
 .day-counts-caption {
   font-size: 0.72rem;
   color: var(--text-secondary);
-  margin-top: 4px;
+  margin-top: auto;
   display: flex;
   gap: 6px;
   flex-wrap: wrap;
 }
 
 /* ==========================================================================
-   Детальный вид дня (интервалы по 30 минут)
+   Детальный вид дня
    ========================================================================== */
 
 .day-detail-header {
@@ -996,7 +1039,7 @@ textarea {
     gap: 4px;
   }
   .calendar-day-cell {
-    min-height: 82px;
+    min-height: 64px;
     padding: 6px;
   }
 }
@@ -1049,7 +1092,7 @@ textarea {
   border-color: var(--text-secondary);
 }
 
-/* Покрашенные 30-минутные слоты */
+/* Покрашенные слоты времени */
 .time-slot-row.painted-green {
   background: var(--paint-green-bg) !important;
   border: 1.5px solid var(--paint-green-border) !important;
@@ -1073,12 +1116,6 @@ textarea {
   font-weight: 700;
   font-size: 0.88rem;
   min-width: 108px;
-}
-
-.slot-range-indicator {
-  font-size: 0.72rem;
-  padding: 2px 6px;
-  border-radius: 4px;
 }
 
 .slot-status-area {
@@ -1328,7 +1365,7 @@ textarea {
   inset: 0;
   z-index: 100;
   background: rgba(0, 0, 0, 0.65);
-  backdrop-filter: blur(3px);
+  backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1341,6 +1378,7 @@ textarea {
   max-height: 90vh;
   overflow-y: auto;
   background: var(--bg-surface);
+  backdrop-filter: blur(16px);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
   padding: 24px;
@@ -1380,6 +1418,7 @@ textarea {
 
 .toast-msg {
   background: var(--bg-surface);
+  backdrop-filter: blur(12px);
   border-left: 4px solid var(--accent);
   border-top: 1px solid var(--border-color);
   border-right: 1px solid var(--border-color);
@@ -1415,9 +1454,11 @@ textarea {
 
 .settings-card {
   background: var(--bg-surface);
+  backdrop-filter: blur(12px);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
   padding: 24px;
+  box-shadow: var(--shadow-sm);
 }
 
 .settings-card-title {
@@ -1431,4 +1472,3 @@ textarea {
   font-size: 0.88rem;
   color: var(--text-secondary);
 }
-
