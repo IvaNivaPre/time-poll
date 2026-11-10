@@ -1,6 +1,6 @@
 /* ==========================================================================
    TimePoll — Стили интерфейса, Календаря, Покраски слотов и Тем оформления
-   Включает фирменный узорчатый фон в стиле Telegram, меняющий цвет от темы
+   Включает фирменный узорчатый фон в стиле Telegram и полную мобильную адаптацию
    ========================================================================== */
 
 :root {
@@ -14,9 +14,9 @@
   --tg-wallpaper-bg: radial-gradient(circle at 18% 20%, #1f2f46 0%, #0e1621 52%, #141e30 100%);
   --tg-pattern-color: rgba(129, 140, 248, 0.13);
 
-  --bg-surface: rgba(23, 33, 43, 0.88);
-  --bg-elevated: rgba(32, 43, 56, 0.92);
-  --bg-card: rgba(26, 37, 48, 0.9);
+  --bg-surface: rgba(23, 33, 43, 0.9);
+  --bg-elevated: rgba(32, 43, 56, 0.94);
+  --bg-card: rgba(26, 37, 48, 0.92);
   --text-primary: #f1f5f9;
   --text-secondary: #94a3b8;
   --text-muted: #64748b;
@@ -69,9 +69,9 @@
   --tg-wallpaper-bg: linear-gradient(135deg, #d4e6c3 0%, #a8d4b9 38%, #c7deeb 72%, #dfead1 100%);
   --tg-pattern-color: rgba(45, 92, 68, 0.16);
 
-  --bg-surface: rgba(255, 255, 255, 0.9);
-  --bg-elevated: rgba(248, 250, 252, 0.94);
-  --bg-card: rgba(255, 255, 255, 0.92);
+  --bg-surface: rgba(255, 255, 255, 0.92);
+  --bg-elevated: rgba(248, 250, 252, 0.95);
+  --bg-card: rgba(255, 255, 255, 0.94);
   --text-primary: #0f172a;
   --text-secondary: #475569;
   --text-muted: #94a3b8;
@@ -120,9 +120,9 @@
   --tg-wallpaper-bg: radial-gradient(circle at 80% 15%, #2e1557 0%, #110b29 50%, #070514 100%);
   --tg-pattern-color: rgba(192, 132, 252, 0.15);
 
-  --bg-surface: rgba(17, 14, 38, 0.88);
-  --bg-elevated: rgba(27, 22, 59, 0.92);
-  --bg-card: rgba(20, 16, 46, 0.9);
+  --bg-surface: rgba(17, 14, 38, 0.9);
+  --bg-elevated: rgba(27, 22, 59, 0.94);
+  --bg-card: rgba(20, 16, 46, 0.92);
   --text-primary: #f5f3ff;
   --text-secondary: #a5b4fc;
   --text-muted: #6366f1;
@@ -152,9 +152,9 @@
   --tg-wallpaper-bg: linear-gradient(135deg, #0b241b 0%, #091712 50%, #143327 100%);
   --tg-pattern-color: rgba(52, 211, 153, 0.14);
 
-  --bg-surface: rgba(18, 34, 28, 0.88);
-  --bg-elevated: rgba(25, 48, 39, 0.92);
-  --bg-card: rgba(20, 39, 32, 0.9);
+  --bg-surface: rgba(18, 34, 28, 0.9);
+  --bg-elevated: rgba(25, 48, 39, 0.94);
+  --bg-card: rgba(20, 39, 32, 0.92);
   --text-primary: #ecfdf5;
   --text-secondary: #86efac;
   --text-muted: #4d7c6a;
@@ -184,9 +184,9 @@
   --tg-wallpaper-bg: radial-gradient(circle at 25% 80%, #10375c 0%, #091929 55%, #0c2640 100%);
   --tg-pattern-color: rgba(56, 189, 248, 0.15);
 
-  --bg-surface: rgba(15, 33, 51, 0.88);
-  --bg-elevated: rgba(22, 46, 71, 0.92);
-  --bg-card: rgba(18, 38, 58, 0.9);
+  --bg-surface: rgba(15, 33, 51, 0.9);
+  --bg-elevated: rgba(22, 46, 71, 0.94);
+  --bg-card: rgba(18, 38, 58, 0.92);
   --text-primary: #f0f9ff;
   --text-secondary: #7dd3fc;
   --text-muted: #4b799e;
@@ -216,9 +216,9 @@
   --tg-wallpaper-bg: linear-gradient(135deg, #3b1c16 0%, #1c110f 52%, #331e14 100%);
   --tg-pattern-color: rgba(251, 146, 60, 0.15);
 
-  --bg-surface: rgba(41, 26, 23, 0.88);
-  --bg-elevated: rgba(56, 35, 31, 0.92);
-  --bg-card: rgba(46, 29, 25, 0.9);
+  --bg-surface: rgba(41, 26, 23, 0.9);
+  --bg-elevated: rgba(56, 35, 31, 0.94);
+  --bg-card: rgba(46, 29, 25, 0.92);
   --text-primary: #fff7ed;
   --text-secondary: #fdba74;
   --text-muted: #9a6b5c;
@@ -250,6 +250,7 @@
 *::before,
 *::after {
   box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
@@ -308,7 +309,7 @@ textarea {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 24px;
+  padding: 20px;
 }
 
 .auth-card {
@@ -376,7 +377,7 @@ textarea {
 .brand-area {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 
 .brand-icon {
@@ -390,6 +391,7 @@ textarea {
   justify-content: center;
   font-weight: 700;
   font-size: 1.1rem;
+  flex-shrink: 0;
 }
 
 .brand-name {
@@ -416,6 +418,7 @@ textarea {
   height: 8px;
   border-radius: 50%;
   background: #94a3b8;
+  flex-shrink: 0;
 }
 
 .db-status-badge.connected .db-status-dot {
@@ -452,8 +455,10 @@ textarea {
   font-size: 0.9rem;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   transition: all 0.15s ease;
+  white-space: nowrap;
 }
 
 .nav-tab:hover {
@@ -470,7 +475,7 @@ textarea {
 .user-area {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 
 .user-pill {
@@ -506,7 +511,7 @@ textarea {
 }
 
 /* ==========================================================================
-   Панель палитры цветов (Зеленый, Синий, Красный)
+   Панель палитры цветов (Зеленый, Синий, Красный) + Мобильный переключатель
    ========================================================================== */
 
 .palette-sticky-bar {
@@ -514,13 +519,13 @@ textarea {
   top: 63px;
   z-index: 35;
   background: var(--bg-surface);
-  backdrop-filter: blur(12px);
+  backdrop-filter: blur(14px);
   border-bottom: 1px solid var(--border-color);
   padding: 10px 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: 12px;
   flex-wrap: wrap;
   box-shadow: var(--shadow-sm);
 }
@@ -528,7 +533,7 @@ textarea {
 .palette-tools {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   flex-wrap: wrap;
 }
 
@@ -542,6 +547,7 @@ textarea {
 .color-brush-btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   padding: 8px 14px;
   border-radius: var(--radius-sm);
@@ -558,11 +564,16 @@ textarea {
   transform: translateY(-1px);
 }
 
+.brush-short-text {
+  display: none;
+}
+
 .color-swatch {
   width: 14px;
   height: 14px;
   border-radius: 4px;
   display: inline-block;
+  flex-shrink: 0;
 }
 
 .color-brush-btn[data-color="green"] .color-swatch {
@@ -605,6 +616,41 @@ textarea {
   box-shadow: 0 0 0 3px rgba(148, 163, 184, 0.2);
 }
 
+.palette-right-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* Переключатель действия при касании на телефоне (Открыть день vs Красить дни) */
+.touch-action-toggle {
+  display: inline-flex;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 3px;
+  gap: 4px;
+}
+
+.touch-mode-btn {
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.touch-mode-btn.active {
+  background: var(--accent);
+  color: #fff;
+}
+
 .palette-hint {
   font-size: 0.82rem;
   color: var(--text-secondary);
@@ -642,12 +688,6 @@ textarea {
   grid-template-columns: 320px 1fr;
   gap: 24px;
   align-items: start;
-}
-
-@media (max-width: 1024px) {
-  .events-layout {
-    grid-template-columns: 1fr;
-  }
 }
 
 /* Боковая колонка списка мероприятий */
@@ -738,6 +778,7 @@ textarea {
   flex-direction: column;
   gap: 20px;
   box-shadow: var(--shadow-sm);
+  min-width: 0;
 }
 
 .event-top-bar {
@@ -827,6 +868,7 @@ textarea {
   height: 16px;
   border-radius: 4px;
   border: 1px solid var(--border-color);
+  flex-shrink: 0;
 }
 
 .legend-box.in-range {
@@ -853,6 +895,8 @@ textarea {
   font-size: 1.2rem;
   font-weight: 700;
   text-transform: capitalize;
+  min-width: 140px;
+  text-align: center;
 }
 
 .calendar-grid-weekdays {
@@ -1003,7 +1047,7 @@ textarea {
 }
 
 /* ==========================================================================
-   Детальный вид дня
+   Детальный вид дня и слотов времени
    ========================================================================== */
 
 .day-detail-header {
@@ -1024,24 +1068,30 @@ textarea {
   margin: 0;
 }
 
+/* Быстрый выбор интервала (особенно удобен на смартфонах) */
+.quick-range-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  background: var(--bg-elevated);
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  font-size: 0.85rem;
+}
+
+.quick-range-bar select {
+  width: auto;
+  padding: 5px 10px;
+  font-size: 0.85rem;
+}
+
 .slots-columns-wrapper {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px;
   user-select: none;
-}
-
-@media (max-width: 768px) {
-  .slots-columns-wrapper {
-    grid-template-columns: 1fr;
-  }
-  .calendar-grid-days {
-    gap: 4px;
-  }
-  .calendar-day-cell {
-    min-height: 64px;
-    padding: 6px;
-  }
 }
 
 .slots-column {
@@ -1063,11 +1113,12 @@ textarea {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  gap: 8px;
   padding: 8px 12px;
   border-radius: var(--radius-sm);
   cursor: pointer;
   transition: transform 0.08s ease, border-color 0.1s ease;
+  min-height: 44px;
 }
 
 /* Слот внутри предполагаемого промежутка — более светлый */
@@ -1115,7 +1166,7 @@ textarea {
   font-family: 'JetBrains Mono', Consolas, monospace;
   font-weight: 700;
   font-size: 0.88rem;
-  min-width: 108px;
+  min-width: 106px;
 }
 
 .slot-status-area {
@@ -1131,6 +1182,22 @@ textarea {
   align-items: center;
   gap: 4px;
   flex-wrap: wrap;
+}
+
+/* Зона сенсорного протягивания на мобильных (позволяет вести пальцем по часам без прокрутки экрана) */
+.slot-drag-handle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 30px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  touch-action: none;
+  flex-shrink: 0;
 }
 
 .mini-user-chip {
@@ -1167,7 +1234,7 @@ textarea {
 
 .best-slots-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 12px;
   margin-top: 12px;
 }
@@ -1446,12 +1513,6 @@ textarea {
   align-items: start;
 }
 
-@media (max-width: 960px) {
-  .settings-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
 .settings-card {
   background: var(--bg-surface);
   backdrop-filter: blur(12px);
@@ -1471,4 +1532,314 @@ textarea {
   margin: 0 0 18px 0;
   font-size: 0.88rem;
   color: var(--text-secondary);
+}
+
+/* ==========================================================================
+   АДАПТАЦИЯ ПОД ПЛАНШЕТЫ И МОБИЛЬНЫЕ УСТРОЙСТВА
+   ========================================================================== */
+
+@media (max-width: 1024px) {
+  .events-layout {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  /* Горизонтальный скролл карточек мероприятий на мобильных и планшетах */
+  .event-list {
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    gap: 10px;
+    padding-bottom: 4px;
+    scroll-snap-type: x mandatory;
+  }
+
+  .event-card-item {
+    min-width: 240px;
+    max-width: 290px;
+    flex-shrink: 0;
+    scroll-snap-align: start;
+  }
+
+  .settings-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  /* Отступ снизу под фиксированную нижнюю панель палитры на смартфонах */
+  body {
+    padding-bottom: 118px;
+  }
+
+  .main-container {
+    padding: 12px;
+  }
+
+  /* Компактная шапка на мобильных */
+  .app-header {
+    padding: 10px 12px;
+    gap: 8px;
+  }
+
+  .brand-name {
+    font-size: 1.05rem;
+  }
+
+  .db-status-badge span:last-child {
+    max-width: 110px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .user-area {
+    margin-left: auto;
+    gap: 6px;
+  }
+
+  .user-pill {
+    padding: 4px 8px;
+    gap: 6px;
+  }
+
+  .user-role-tag {
+    display: none;
+  }
+
+  /* Вкладки навигации на всю ширину второй строкой */
+  .nav-tabs {
+    order: 3;
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(95px, 1fr));
+    gap: 4px;
+  }
+
+  .nav-tab {
+    padding: 8px 6px;
+    font-size: 0.82rem;
+    gap: 5px;
+  }
+
+  /* Палитра превращается в удобный нижний док под большой палец */
+  .palette-sticky-bar {
+    position: fixed;
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 60;
+    padding: 8px 10px calc(8px + env(safe-area-inset-bottom, 0px));
+    border-bottom: none;
+    border-top: 1px solid var(--border-color);
+    box-shadow: 0 -6px 24px rgba(0, 0, 0, 0.38);
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
+  }
+
+  .palette-label,
+  .palette-hint {
+    display: none;
+  }
+
+  .palette-tools {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    width: 100%;
+  }
+
+  .color-brush-btn {
+    padding: 8px 4px;
+    font-size: 0.76rem;
+    gap: 5px;
+    border-radius: 8px;
+  }
+
+  .brush-full-text {
+    display: none;
+  }
+
+  .brush-short-text {
+    display: inline;
+  }
+
+  .palette-right-controls {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .touch-action-toggle {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .touch-mode-btn {
+    text-align: center;
+    padding: 6px 8px;
+    font-size: 0.78rem;
+  }
+
+  /* Панели и рабочая область */
+  .sidebar-panel,
+  .workspace-panel,
+  .settings-card {
+    padding: 14px;
+    border-radius: var(--radius-md);
+  }
+
+  .event-info-title {
+    font-size: 1.15rem;
+  }
+
+  .mode-toolbar {
+    padding: 10px;
+    gap: 10px;
+  }
+
+  .view-mode-group {
+    width: 100%;
+  }
+
+  .view-mode-group .btn {
+    flex: 1 1 auto;
+  }
+
+  .legend-range-group {
+    width: 100%;
+    font-size: 0.76rem;
+    justify-content: space-between;
+  }
+
+  /* Сетка календаря для мобильного экрана */
+  .calendar-nav-bar {
+    gap: 6px;
+  }
+
+  .calendar-month-title {
+    font-size: 1rem;
+    min-width: auto;
+  }
+
+  .calendar-grid-weekdays,
+  .calendar-grid-days {
+    gap: 4px;
+  }
+
+  .weekday-header {
+    font-size: 0.72rem;
+    padding: 2px 0;
+  }
+
+  .calendar-day-cell {
+    min-height: 54px;
+    padding: 6px 5px;
+    border-radius: 9px;
+  }
+
+  .day-number {
+    font-size: 0.92rem;
+  }
+
+  .day-counts-caption {
+    font-size: 0.62rem;
+    gap: 2px;
+  }
+
+  .day-mini-bar {
+    height: 5px;
+  }
+
+  /* Детальный вид дня (одна колонка + ручка протягивания справа) */
+  .day-detail-header {
+    padding: 10px 12px;
+    gap: 8px;
+  }
+
+  .day-detail-title {
+    font-size: 1rem;
+  }
+
+  .slots-columns-wrapper {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .time-slot-row {
+    padding: 8px 10px;
+    min-height: 46px;
+  }
+
+  .slot-time-label {
+    font-size: 0.84rem;
+    min-width: 96px;
+  }
+
+  .slot-drag-handle {
+    display: inline-flex;
+  }
+
+  /* Поля ввода 16px, чтобы мобильный браузер (iOS Safari) не масштабировал экран при фокусе */
+  input,
+  select,
+  textarea,
+  .form-input,
+  .form-select,
+  .form-textarea {
+    font-size: 16px !important;
+  }
+
+  .form-row-2 {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  /* Модальное окно снизу (Bottom Sheet) на мобильных */
+  .modal-backdrop {
+    padding: 10px;
+    align-items: flex-end;
+  }
+
+  .modal-window {
+    padding: 18px;
+    max-height: 90dvh;
+    border-radius: 18px 18px 14px 14px;
+  }
+
+  /* Адаптивная таблица пользователей в виде карточек на узком экране */
+  .users-table thead {
+    display: none;
+  }
+
+  .users-table,
+  .users-table tbody,
+  .users-table tr,
+  .users-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .users-table tr {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 12px;
+    margin-bottom: 10px;
+  }
+
+  .users-table td {
+    padding: 6px 0;
+    border-bottom: none;
+    text-align: left !important;
+  }
+
+  /* Тосты выше нижней панели палитры */
+  .toast-container {
+    bottom: 115px;
+    left: 12px;
+    right: 12px;
+  }
 }

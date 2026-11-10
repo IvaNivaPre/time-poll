@@ -1,5 +1,6 @@
 /**
  * Главный контроллер пользовательского интерфейса TimePoll
+ * Поддерживает ПКМ и протягивание на ПК, а также тапы, долгое нажатие и сенсорное рисование на мобильных устройствах.
  */
 (function () {
   const store = window.appStore;
@@ -110,7 +111,12 @@
       this.calendarMode = 'personal'; // 'personal' | 'group'
       this.inspectedUserId = null;
 
-      // Состояние зажатой ПКМ для рисования протягиванием
+      // Действие при касании/клике на день в календаре месяца: 'open' (открыть часы) или 'paint' (покрасить день)
+      this.calendarTapMode = 'open';
+      this.quickRangeStart = '12:00';
+      this.quickRangeEnd = '18:00';
+
+      // Состояние зажатой ПКМ или сенсорного протягивания
       this.paintDrag = {
         active: false,
         type: null, // 'day' | 'slot'
@@ -128,6 +134,18 @@
 
       window.addEventListener('mouseup', (e) => {
         if (this.paintDrag.active && (e.button === 2 || e.buttons === 0)) {
+          this.finishPaintDrag();
+        }
+      });
+
+      window.addEventListener('touchend', () => {
+        if (this.paintDrag.active) {
+          this.finishPaintDrag();
+        }
+      });
+
+      window.addEventListener('touchcancel', () => {
+        if (this.paintDrag.active) {
           this.finishPaintDrag();
         }
       });
@@ -259,9 +277,9 @@
       if (st === 'connected') {
         label = `Firebase (${fbService.mode === 'rtdb' ? 'Realtime DB' : 'Firestore'})`;
       } else if (st === 'connecting') {
-        label = 'Подключение к Firebase...';
+        label = 'Подключение...';
       } else if (st === 'error') {
-        label = 'Ошибка БД (Локальный кэш)';
+        label = 'Локальный кэш';
       }
       badge.innerHTML = `<span class="db-status-dot"></span><span>${escapeHtml(label)}</span>`;
       if (fbService.lastError) {
@@ -381,19 +399,19 @@
 
           <nav class="nav-tabs">
             <button type="button" class="nav-tab ${this.activeTab === 'events' ? 'active' : ''}" data-tab="events">
-              <span>🗓️</span> Мероприятия и Календарь
+              <span>🗓️</span> <span>Календарь</span>
             </button>
             ${
               isAdmin
                 ? `
               <button type="button" class="nav-tab ${this.activeTab === 'users' ? 'active' : ''}" data-tab="users">
-                <span>👥</span> Пользователи (${store.getUsers().length})
+                <span>👥</span> <span>Люди (${store.getUsers().length})</span>
               </button>
             `
                 : ''
             }
             <button type="button" class="nav-tab ${this.activeTab === 'settings' ? 'active' : ''}" data-tab="settings">
-              <span>⚙️</span> Настройки
+              <span>⚙️</span> <span>Настройки</span>
             </button>
           </nav>
 
@@ -403,11 +421,8 @@
                 ${escapeHtml(initial)}
               </span>
               <div>
-                <div style="font-weight: 600; font-size: 0.88rem; line-height: 1.2;">
+                <div style="font-weight: 600; font-size: 0.84rem; line-height: 1.2;">
                   ${escapeHtml(currentUser.displayName)}
-                </div>
-                <div style="font-size: 0.74rem; color: var(--text-secondary);">
-                  @${escapeHtml(currentUser.login)}
                 </div>
               </div>
               <span class="user-role-tag">${isAdmin ? 'Админ' : 'Участник'}</span>
@@ -436,33 +451,53 @@
       }
     }
 
-    // ==================== ПАНЕЛЬ ПАЛИТРЫ ПОКРАСКИ ====================
+    // ==================== ПАНЕЛЬ ПАЛИТРЫ ПОКРАСКИ (ДЕСКТОП + МОБИЛЬНЫЙ ДОК) ====================
 
     renderPaletteBar() {
       return `
         <section class="palette-sticky-bar">
           <div class="palette-tools">
-            <span class="palette-label">🎨 Палитра покраски:</span>
+            <span class="palette-label">🎨 Палитра:</span>
             <button type="button" class="color-brush-btn ${this.activeColor === 'green' ? 'active' : ''}" data-color="green" title="Горячая клавиша: 1">
               <span class="color-swatch"></span>
-              <span>Зелёный — Предпочитаемое время</span>
+              <span class="brush-full-text">Зелёный — Предпочитаемое время</span>
+              <span class="brush-short-text">Предпочт.</span>
             </button>
             <button type="button" class="color-brush-btn ${this.activeColor === 'blue' ? 'active' : ''}" data-color="blue" title="Горячая клавиша: 2">
               <span class="color-swatch"></span>
-              <span>Синий — Свободен в это время</span>
+              <span class="brush-full-text">Синий — Свободен в это время</span>
+              <span class="brush-short-text">Свободен</span>
             </button>
             <button type="button" class="color-brush-btn ${this.activeColor === 'red' ? 'active' : ''}" data-color="red" title="Горячая клавиша: 3">
               <span class="color-swatch"></span>
-              <span>Красный — Занят в это время</span>
+              <span class="brush-full-text">Красный — Занят в это время</span>
+              <span class="brush-short-text">Занят</span>
             </button>
             <button type="button" class="color-brush-btn ${this.activeColor === 'erase' ? 'active' : ''}" data-color="erase" title="Горячая клавиша: 0">
               <span class="color-swatch"></span>
-              <span>Ластик (Стереть)</span>
+              <span class="brush-full-text">Ластик (Стереть)</span>
+              <span class="brush-short-text">Ластик</span>
             </button>
           </div>
 
-          <div class="palette-hint">
-            <span>🖱️ Нажмите <kbd>ПКМ</kbd> (правую кнопку мыши) или зажмите <kbd>ПКМ</kbd> для покраски. <kbd>ЛКМ</kbd> по дню — выбор времени.</span>
+          <div class="palette-right-controls">
+            ${
+              this.calendarSubView === 'month'
+                ? `
+              <div class="touch-action-toggle" title="Режим нажатия по дню в календаре">
+                <button type="button" class="touch-mode-btn ${this.calendarTapMode === 'open' ? 'active' : ''}" data-tap-mode="open">
+                  🕒 Открыть часы дня
+                </button>
+                <button type="button" class="touch-mode-btn ${this.calendarTapMode === 'paint' ? 'active' : ''}" data-tap-mode="paint">
+                  🖌️ Красить весь день
+                </button>
+              </div>
+            `
+                : ''
+            }
+            <div class="palette-hint">
+              <span>🖱️ <kbd>ПКМ</kbd> — покраска · <kbd>ЛКМ</kbd> — выбор дня</span>
+            </div>
           </div>
         </section>
       `;
@@ -473,6 +508,15 @@
         btn.addEventListener('click', () => {
           const color = btn.getAttribute('data-color');
           this.setActiveColor(color);
+        });
+      });
+
+      document.querySelectorAll('.touch-mode-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          this.calendarTapMode = btn.getAttribute('data-tap-mode');
+          document.querySelectorAll('.touch-mode-btn').forEach((b) => {
+            b.classList.toggle('active', b.getAttribute('data-tap-mode') === this.calendarTapMode);
+          });
         });
       });
     }
@@ -591,14 +635,14 @@
               ${
                 event.startDate && event.endDate
                   ? `<span class="info-badge highlight">
-                      📆 Промежуток дат: ${escapeHtml(formatReadableDate(event.startDate))} — ${escapeHtml(formatReadableDate(event.endDate))}
+                      📆 ${escapeHtml(formatReadableDate(event.startDate))} — ${escapeHtml(formatReadableDate(event.endDate))}
                     </span>`
                   : ''
               }
               ${
                 hasExpectedTime
                   ? `<span class="info-badge">
-                      ⏰ Предполагаемое время: ${escapeHtml(event.expectedStartTime)} – ${escapeHtml(event.expectedEndTime)}
+                      ⏰ ${escapeHtml(event.expectedStartTime)} – ${escapeHtml(event.expectedEndTime)}
                     </span>`
                   : ''
               }
@@ -624,7 +668,7 @@
               🖌️ Разметка (${escapeHtml(targetUser.id === currentUser.id ? 'Моя' : targetUser.displayName)})
             </button>
             <button type="button" class="btn btn-sm ${this.calendarMode === 'group' ? 'btn-primary' : ''}" id="mode-group-btn">
-              📊 Общая сводка (${participants.length} участн.)
+              📊 Сводка (${participants.length})
             </button>
 
             ${
@@ -643,14 +687,14 @@
             }
 
             <button type="button" id="clear-my-marks-btn" class="btn btn-sm" title="Очистить всю разметку в этом мероприятии">
-              🧹 Очистить разметку
+              🧹 Очистить
             </button>
           </div>
 
           <div class="legend-range-group">
             <span class="legend-item">
               <span class="legend-box in-range"></span>
-              <span>Предполагаемый промежуток</span>
+              <span>В промежутке</span>
             </span>
             <span class="legend-item">
               <span class="legend-box out-range"></span>
@@ -677,15 +721,15 @@
 
       return `
         <div class="calendar-nav-bar">
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <button type="button" class="btn btn-sm" id="cal-prev-month">◀ Пред. месяц</button>
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <button type="button" class="btn btn-sm" id="cal-prev-month" title="Предыдущий месяц">◀</button>
             <span class="calendar-month-title">${escapeHtml(monthTitle)}</span>
-            <button type="button" class="btn btn-sm" id="cal-next-month">След. месяц ▶</button>
+            <button type="button" class="btn btn-sm" id="cal-next-month" title="Следующий месяц">▶</button>
           </div>
           ${
             event.startDate
-              ? `<div style="display: flex; align-items: center; gap: 8px;">
-                  <button type="button" class="btn btn-sm" id="cal-jump-event">🎯 К датам мероприятия</button>
+              ? `<div style="display: flex; align-items: center; gap: 6px;">
+                  <button type="button" class="btn btn-sm" id="cal-jump-event">🎯 К датам</button>
                 </div>`
               : ''
           }
@@ -814,11 +858,12 @@
       const morningSlots = allSlots.slice(0, 24);
       const eveningSlots = allSlots.slice(24, 48);
       const hasExpectedTime = Boolean(event.expectedStartTime && event.expectedEndTime);
+      const timeOptions = allSlots.concat(['24:00']);
 
       return `
         <div class="day-detail-header">
-          <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
-            <button type="button" class="btn btn-sm" id="back-to-month-btn">← Назад к календарю</button>
+          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+            <button type="button" class="btn btn-sm" id="back-to-month-btn">← Календарь</button>
             <button type="button" class="btn btn-sm" id="prev-day-btn" title="Предыдущий день">◀</button>
             <h3 class="day-detail-title">
               📅 ${escapeHtml(formatReadableDate(dateStr))}
@@ -826,21 +871,41 @@
             <button type="button" class="btn btn-sm" id="next-day-btn" title="Следующий день">▶</button>
           </div>
 
-          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+          <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
             ${
               hasExpectedTime
-                ? `<button type="button" class="btn btn-sm" id="paint-expected-day-btn" title="Закрасить слоты предполагаемого времени выбранным на панели цветом">
-                    Закрасить промежуток (${escapeHtml(event.expectedStartTime)}–${escapeHtml(event.expectedEndTime)})
+                ? `<button type="button" class="btn btn-sm" id="paint-expected-day-btn">
+                    Промежуток (${escapeHtml(event.expectedStartTime)}–${escapeHtml(event.expectedEndTime)})
                   </button>`
                 : ''
             }
-            <button type="button" class="btn btn-sm" id="paint-all-day-btn" title="Закрасить весь день выбранным цветом">
-              Закрасить весь день
+            <button type="button" class="btn btn-sm" id="paint-all-day-btn">
+              Весь день
             </button>
             <button type="button" class="btn btn-sm" id="clear-day-btn">
               Очистить день
             </button>
           </div>
+        </div>
+
+        <!-- Быстрая заливка любого интервала (очень удобно с телефона) -->
+        <div class="quick-range-bar">
+          <span style="font-weight: 600;">⚡ Быстрый интервал:</span>
+          <span>с</span>
+          <select id="qr-start" class="form-select">
+            ${timeOptions
+              .slice(0, 48)
+              .map((t) => `<option value="${t}" ${this.quickRangeStart === t ? 'selected' : ''}>${t}</option>`)
+              .join('')}
+          </select>
+          <span>до</span>
+          <select id="qr-end" class="form-select">
+            ${timeOptions
+              .slice(1)
+              .map((t) => `<option value="${t}" ${this.quickRangeEnd === t ? 'selected' : ''}>${t}</option>`)
+              .join('')}
+          </select>
+          <button type="button" class="btn btn-primary btn-sm" id="qr-apply-btn">Закрасить</button>
         </div>
 
         <div class="slots-columns-wrapper" id="day-slots-grid">
@@ -898,12 +963,13 @@
           class="time-slot-row ${rangeClass} ${paintedClass}"
           data-slot="${escapeHtml(slotKey)}"
         >
-          <div style="display: flex; align-items: center; gap: 10px;">
+          <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
             <span class="slot-time-label">${slotKey} – ${endLabel}</span>
             ${myBadge}
           </div>
           <div class="slot-status-area">
             <div class="slot-avatars-list">${chipsHtml}</div>
+            <span class="slot-drag-handle" data-slot-handle="${escapeHtml(slotKey)}" title="Потяните пальцем вверх/вниз для быстрой покраски">🖌️</span>
           </div>
         </div>
       `;
@@ -918,7 +984,7 @@
           <div class="best-slots-panel">
             <div style="font-weight: 700; font-size: 1rem;">🏆 Лучшее время по итогам опроса</div>
             <div style="font-size: 0.86rem; color: var(--text-secondary); margin-top: 4px;">
-              Пока никто из участников не отметил свободное время (зелёным или синим цветом). Нажмите ПКМ по датам или времени!
+              Пока никто из участников не отметил свободное время (зелёным или синим цветом).
             </div>
           </div>
         `;
@@ -959,7 +1025,7 @@
       `;
     }
 
-    // ==================== ОБРАБОТЧИКИ СОБЫТИЙ КАЛЕНДАРЯ И ПОКРАСКИ ПКМ ====================
+    // ==================== ОБРАБОТЧИКИ СОБЫТИЙ КАЛЕНДАРЯ И ПОКРАСКИ (ПКМ + ТАЧ) ====================
 
     bindEventsTab() {
       const currentUser = store.getCurrentUser();
@@ -1093,20 +1159,63 @@
         });
       }
 
+      // Сетка дней календаря (ЛКМ / Тап, ПКМ, Долгое нажатие на телефоне)
       const daysGrid = document.getElementById('calendar-days-grid');
       if (daysGrid) {
         daysGrid.addEventListener('contextmenu', (e) => e.preventDefault());
 
+        const paintDayHelper = (dateStr, cell) => {
+          const currentSummary = store.getUserDaySummary(event, targetUserId, dateStr);
+          let nextColor = this.activeColor === 'erase' ? null : this.activeColor;
+          if (nextColor && currentSummary.uniformColor === nextColor) {
+            nextColor = null;
+          }
+          store.paintWholeDay(event.id, targetUserId, dateStr, nextColor, false);
+          this._applyQuickCellVisual(cell, nextColor);
+        };
+
         daysGrid.querySelectorAll('.calendar-day-cell').forEach((cell) => {
           const dateStr = cell.getAttribute('data-date');
+          let longPressTimer = null;
+          let longPressTriggered = false;
 
-          cell.addEventListener('click', (e) => {
-            if (e.button !== 0) return;
-            this.selectedDateStr = dateStr;
-            this.calendarSubView = 'day';
-            this.render();
+          // Долгое нажатие пальцем на телефоне — закрашивает весь день (аналог ПКМ)
+          cell.addEventListener(
+            'touchstart',
+            () => {
+              longPressTriggered = false;
+              longPressTimer = setTimeout(() => {
+                longPressTriggered = true;
+                if (navigator.vibrate) navigator.vibrate(25);
+                paintDayHelper(dateStr, cell);
+                this.render();
+              }, 380);
+            },
+            { passive: true }
+          );
+
+          cell.addEventListener('touchend', () => {
+            if (longPressTimer) clearTimeout(longPressTimer);
           });
 
+          cell.addEventListener('touchmove', () => {
+            if (longPressTimer) clearTimeout(longPressTimer);
+          });
+
+          // ЛКМ / Обычный тап: либо открывает день, либо красит день (если выбран режим "Красить весь день")
+          cell.addEventListener('click', (e) => {
+            if (e.button !== 0 || longPressTriggered) return;
+            if (this.calendarTapMode === 'paint') {
+              paintDayHelper(dateStr, cell);
+              this.render();
+            } else {
+              this.selectedDateStr = dateStr;
+              this.calendarSubView = 'day';
+              this.render();
+            }
+          });
+
+          // ПКМ (и протягивание с зажатой ПКМ на компьютере)
           cell.addEventListener('mousedown', (e) => {
             if (e.button === 2) {
               e.preventDefault();
@@ -1144,6 +1253,7 @@
         });
       }
 
+      // Обработчики детального вида дня
       const backBtn = document.getElementById('back-to-month-btn');
       if (backBtn) {
         backBtn.addEventListener('click', () => {
@@ -1197,46 +1307,82 @@
         });
       }
 
+      // Быстрая заливка выбранного интервала времени
+      const qrStart = document.getElementById('qr-start');
+      const qrEnd = document.getElementById('qr-end');
+      const qrApplyBtn = document.getElementById('qr-apply-btn');
+      if (qrStart) {
+        qrStart.addEventListener('change', (e) => {
+          this.quickRangeStart = e.target.value;
+        });
+      }
+      if (qrEnd) {
+        qrEnd.addEventListener('change', (e) => {
+          this.quickRangeEnd = e.target.value;
+        });
+      }
+      if (qrApplyBtn) {
+        qrApplyBtn.addEventListener('click', () => {
+          const s = qrStart ? qrStart.value : this.quickRangeStart;
+          const e = qrEnd ? qrEnd.value : this.quickRangeEnd;
+          if (s >= e) {
+            this.showToast('Время окончания должно быть позже времени начала', 'error');
+            return;
+          }
+          const color = this.activeColor === 'erase' ? null : this.activeColor;
+          const slotsToPaint = store.ALL_TIME_SLOTS.filter((slot) => slot >= s && slot < e);
+          store.paintDayRange(event.id, targetUserId, this.selectedDateStr, slotsToPaint, color);
+          this.render();
+        });
+      }
+
+      // Покраска слотов времени (ПКМ на десктопе + Тап на мобильных + Сенсорное протягивание за ручку 🖌️)
       const slotsGrid = document.getElementById('day-slots-grid');
       if (slotsGrid && this.selectedDateStr) {
         slotsGrid.addEventListener('contextmenu', (e) => e.preventDefault());
 
+        const startSlotStroke = (row, slotKey) => {
+          const existingColor = store.getUserSlotColor(
+            event,
+            targetUserId,
+            this.selectedDateStr,
+            slotKey
+          );
+          let nextColor = this.activeColor === 'erase' ? null : this.activeColor;
+          if (nextColor && existingColor === nextColor) {
+            nextColor = null;
+          }
+
+          this.paintDrag = {
+            active: true,
+            type: 'slot',
+            targetColor: nextColor,
+            dirty: true
+          };
+
+          store.paintTimeSlot(
+            event.id,
+            targetUserId,
+            this.selectedDateStr,
+            slotKey,
+            nextColor,
+            true
+          );
+          this._applyQuickCellVisual(row, nextColor);
+        };
+
         slotsGrid.querySelectorAll('.time-slot-row').forEach((row) => {
           const slotKey = row.getAttribute('data-slot');
 
+          // Нажатие ПКМ на ПК
           row.addEventListener('mousedown', (e) => {
             if (e.button === 2) {
               e.preventDefault();
-              const existingColor = store.getUserSlotColor(
-                event,
-                targetUserId,
-                this.selectedDateStr,
-                slotKey
-              );
-              let nextColor = this.activeColor === 'erase' ? null : this.activeColor;
-              if (nextColor && existingColor === nextColor) {
-                nextColor = null;
-              }
-
-              this.paintDrag = {
-                active: true,
-                type: 'slot',
-                targetColor: nextColor,
-                dirty: true
-              };
-
-              store.paintTimeSlot(
-                event.id,
-                targetUserId,
-                this.selectedDateStr,
-                slotKey,
-                nextColor,
-                true
-              );
-              this._applyQuickCellVisual(row, nextColor);
+              startSlotStroke(row, slotKey);
             }
           });
 
+          // Протягивание с зажатой ПКМ на ПК
           row.addEventListener('mouseenter', (e) => {
             if (this.paintDrag.active && this.paintDrag.type === 'slot' && (e.buttons & 2) === 2) {
               this.paintDrag.dirty = true;
@@ -1251,6 +1397,73 @@
               this._applyQuickCellVisual(row, this.paintDrag.targetColor);
             }
           });
+
+          // Обычный тап (на смартфоне или ЛКМ) также красит слот внутри дня (не мешая вертикальному скроллу страницы)
+          row.addEventListener('click', (e) => {
+            if (e.target.closest('.slot-drag-handle')) return;
+            const existingColor = store.getUserSlotColor(
+              event,
+              targetUserId,
+              this.selectedDateStr,
+              slotKey
+            );
+            let nextColor = this.activeColor === 'erase' ? null : this.activeColor;
+            if (nextColor && existingColor === nextColor) {
+              nextColor = null;
+            }
+            store.paintTimeSlot(
+              event.id,
+              targetUserId,
+              this.selectedDateStr,
+              slotKey,
+              nextColor,
+              false
+            );
+            this.render();
+          });
+        });
+
+        // Сенсорное протягивание пальцем по правой колонке 🖌️ (.slot-drag-handle) на смартфонах
+        slotsGrid.querySelectorAll('.slot-drag-handle').forEach((handle) => {
+          handle.addEventListener(
+            'touchstart',
+            (e) => {
+              e.preventDefault();
+              const row = handle.closest('.time-slot-row');
+              if (!row) return;
+              const slotKey = row.getAttribute('data-slot');
+              startSlotStroke(row, slotKey);
+            },
+            { passive: false }
+          );
+
+          handle.addEventListener(
+            'touchmove',
+            (e) => {
+              if (!this.paintDrag.active || this.paintDrag.type !== 'slot') return;
+              e.preventDefault();
+              const touch = e.touches[0];
+              if (!touch) return;
+              const targetEl = document.elementFromPoint(touch.clientX, touch.clientY);
+              const row = targetEl ? targetEl.closest('.time-slot-row') : null;
+              if (row) {
+                const slotKey = row.getAttribute('data-slot');
+                if (slotKey) {
+                  this.paintDrag.dirty = true;
+                  store.paintTimeSlot(
+                    event.id,
+                    targetUserId,
+                    this.selectedDateStr,
+                    slotKey,
+                    this.paintDrag.targetColor,
+                    true
+                  );
+                  this._applyQuickCellVisual(row, this.paintDrag.targetColor);
+                }
+              }
+            },
+            { passive: false }
+          );
         });
       }
     }
@@ -1502,9 +1715,9 @@
                             <strong>${escapeHtml(u.displayName)}</strong>
                           </div>
                         </td>
-                        <td><code>${escapeHtml(u.login)}</code></td>
+                        <td>Логин: <code>${escapeHtml(u.login)}</code></td>
                         <td>
-                          <code style="background: var(--bg-elevated); padding: 3px 8px; border-radius: 4px;">
+                          Пароль: <code style="background: var(--bg-elevated); padding: 3px 8px; border-radius: 4px;">
                             ${escapeHtml(u.password)}
                           </code>
                         </td>
@@ -1512,7 +1725,7 @@
                           <span class="user-role-tag">${u.role === 'admin' ? 'Администратор' : 'Пользователь'}</span>
                         </td>
                         <td style="text-align: right;">
-                          <div style="display: inline-flex; gap: 8px;">
+                          <div style="display: inline-flex; gap: 8px; flex-wrap: wrap;">
                             <button type="button" class="btn btn-sm" data-edit-user="${escapeHtml(u.id)}">✏️ Редактировать</button>
                             <button type="button" class="btn btn-danger btn-sm" data-delete-user="${escapeHtml(u.id)}">🗑️ Удалить</button>
                           </div>
